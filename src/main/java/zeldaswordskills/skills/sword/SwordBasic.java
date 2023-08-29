@@ -1,26 +1,24 @@
 /**
-    Copyright (C) <2018> <coolAlias>
-
-    This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
-    you can redistribute it and/or modify it under the terms of the GNU
-    General Public License as published by the Free Software Foundation,
-    either version 3 of the License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (C) <2018> <coolAlias>
+ * 
+ * This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
+ * you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package zeldaswordskills.skills.sword;
 
 import java.util.List;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.DirtyEntityAccessor;
 import net.minecraft.entity.Entity;
@@ -31,6 +29,9 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import zeldaswordskills.api.damage.IComboDamage;
 import zeldaswordskills.api.damage.IComboDamage.IComboDamageFull;
 import zeldaswordskills.api.damage.IDamageAoE;
@@ -52,18 +53,18 @@ import zeldaswordskills.util.WorldUtils;
  * BASIC SWORD SKILL
  * Description: Foundation for all other Sword Skills
  * Activation: Standard (toggle), but must be looking near a target within range
- * Effects:	1. must be active in order to use any of the Sword Skills (see below)
- * 			2. camera locks on to target so long as player remains within range
- * 			3. chain up to (2 + level) attacks:
- * 				- each attack adds the combo's current size minus one to damage
- * 				- taking more than (0.5F * level) in damage at once will terminate an ongoing combo, as will
- * 					missing a strike or taking too long between consecutive hits
+ * Effects: 1. must be active in order to use any of the Sword Skills (see below)
+ * 2. camera locks on to target so long as player remains within range
+ * 3. chain up to (2 + level) attacks:
+ * - each attack adds the combo's current size minus one to damage
+ * - taking more than (0.5F * level) in damage at once will terminate an ongoing combo, as will
+ * missing a strike or taking too long between consecutive hits
  * Exhaustion: 0.0F - does not cost exertion to use
  * Duration: (a) targeting: unlimited
- * 			 (b) combo: time allowed between strikes is 20 ticks + (2 * level)
+ * (b) combo: time allowed between strikes is 20 ticks + (2 * level)
  * Range: 6 + level, distance within which targets can be acquired, in blocks
- * Special:	- intended (but not required) for player to use keyboard instead of mouse while skill is active
- * 			- deactivates if the player is no longer holding a sword or if there are no longer any valid targets
+ * Special: - intended (but not required) for player to use keyboard instead of mouse while skill is active
+ * - deactivates if the player is no longer holding a sword or if there are no longer any valid targets
  * 
  * Basic sword technique skill; it is a prerequisite for all other sword skills and may only
  * remain active while a sword is in hand.
@@ -93,294 +94,312 @@ import zeldaswordskills.util.WorldUtils;
  * Down arrow (tap) - Parry/Disarm
  * 
  */
-public class SwordBasic extends SkillActive implements ICombo, ILockOnTarget
-{
-	/** True if this skill is currently active */
-	private boolean isActive = false;
+public class SwordBasic extends SkillActive implements ICombo, ILockOnTarget {
 
-	/** The current target, if any; kept synchronized between the client and server */
-	private EntityLivingBase currentTarget = null;
+    /** True if this skill is currently active */
+    private boolean isActive = false;
 
-	/** The previous target; only used client side */
-	@SideOnly(Side.CLIENT)
-	private EntityLivingBase prevTarget;
+    /** The current target, if any; kept synchronized between the client and server */
+    private EntityLivingBase currentTarget = null;
 
-	/** Set to a new instance each time a combo begins */
-	private Combo combo = null;
+    /** The previous target; only used client side */
+    @SideOnly(Side.CLIENT)
+    private EntityLivingBase prevTarget;
 
-	public SwordBasic(String name) {
-		super(name);
-	}
+    /** Set to a new instance each time a combo begins */
+    private Combo combo = null;
 
-	private SwordBasic(SwordBasic skill) {
-		super(skill);
-	}
+    public SwordBasic(String name) {
+        super(name);
+    }
 
-	@Override
-	public SwordBasic newInstance() {
-		return new SwordBasic(this);
-	}
+    private SwordBasic(SwordBasic skill) {
+        super(skill);
+    }
 
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void addInformation(List<String> desc, EntityPlayer player) {
-		desc.add(getRangeDisplay(getRange()));
-		desc.add(StatCollector.translateToLocalFormatted(getInfoString("info", 1), getMaxComboSize()));
-		desc.add(getTimeLimitDisplay(getComboTimeLimit()));
-		desc.add(StatCollector.translateToLocalFormatted(getInfoString("info", 2), String.format("%.1f", (0.5F * level))));
-	}
+    @Override
+    public SwordBasic newInstance() {
+        return new SwordBasic(this);
+    }
 
-	@Override
-	public boolean canUse(EntityPlayer player) {
-		return level > 0;
-	}
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(List<String> desc, EntityPlayer player) {
+        desc.add(getRangeDisplay(getRange()));
+        desc.add(StatCollector.translateToLocalFormatted(getInfoString("info", 1), getMaxComboSize()));
+        desc.add(getTimeLimitDisplay(getComboTimeLimit()));
+        desc.add(
+            StatCollector.translateToLocalFormatted(getInfoString("info", 2), String.format("%.1f", (0.5F * level))));
+    }
 
-	@Override
-	public boolean isActive() {
-		return isActive;
-	}
+    @Override
+    public boolean canUse(EntityPlayer player) {
+        return level > 0;
+    }
 
-	@Override
-	public boolean hasAnimation() {
-		return false;
-	}
+    @Override
+    public boolean isActive() {
+        return isActive;
+    }
 
-	@Override
-	protected float getExhaustion() {
-		return 0.0F;
-	}
+    @Override
+    public boolean hasAnimation() {
+        return false;
+    }
 
-	@Override
-	public byte getMaxLevel() {
-		return (MAX_LEVEL * 2);
-	}
+    @Override
+    protected float getExhaustion() {
+        return 0.0F;
+    }
 
-	/** Returns amount of time allowed between successful attacks before combo terminates */
-	private final int getComboTimeLimit() {
-		return (20 + (level * 2));
-	}
+    @Override
+    public byte getMaxLevel() {
+        return (MAX_LEVEL * 2);
+    }
 
-	/** Returns the max combo size attainable (2 plus skill level) */
-	private final int getMaxComboSize() {
-		return (2 + level);
-	}
+    /** Returns amount of time allowed between successful attacks before combo terminates */
+    private final int getComboTimeLimit() {
+        return (20 + (level * 2));
+    }
 
-	/** Returns max distance at which targets may be acquired or remain targetable */
-	private final int getRange() {
-		return (6 + level);
-	}
+    /** Returns the max combo size attainable (2 plus skill level) */
+    private final int getMaxComboSize() {
+        return (2 + level);
+    }
 
-	@Override
-	protected boolean onActivated(World world, EntityPlayer player) {
-		if (isActive) { // deactivate if already active
-			onDeactivated(world, player); // don't need to use deactivate, as packets already sent
-		} else { // otherwise activate
-			isActive = true;
-			if (!isComboInProgress()) {
-				combo = null;
-			}
-			currentTarget = TargetUtils.acquireLookTarget(player, getRange(), getRange(), true, IMob.class);
-		}
-		return true;
-	}
+    /** Returns max distance at which targets may be acquired or remain targetable */
+    private final int getRange() {
+        return (6 + level);
+    }
 
-	@Override
-	protected void onDeactivated(World world, EntityPlayer player) {
-		isActive = false;
-		currentTarget = null;
-		if (world.isRemote) {
-			prevTarget = null;
-		}
-	}
+    @Override
+    protected boolean onActivated(World world, EntityPlayer player) {
+        if (isActive) { // deactivate if already active
+            onDeactivated(world, player); // don't need to use deactivate, as packets already sent
+        } else { // otherwise activate
+            isActive = true;
+            if (!isComboInProgress()) {
+                combo = null;
+            }
+            currentTarget = TargetUtils.acquireLookTarget(player, getRange(), getRange(), true, IMob.class);
+        }
+        return true;
+    }
 
-	@Override
-	public void onUpdate(EntityPlayer player) {
-		if (isActive() && player.worldObj.isRemote) {
-			if (Minecraft.getMinecraft().currentScreen != null  || !updateTargets(player)) {
-				deactivate(player);
-			}
-		}
-		if (isComboInProgress()) {
-			combo.onUpdate(player);
-		}
-	}
+    @Override
+    protected void onDeactivated(World world, EntityPlayer player) {
+        isActive = false;
+        currentTarget = null;
+        if (world.isRemote) {
+            prevTarget = null;
+        }
+    }
 
-	@Override
-	@SideOnly(Side.CLIENT)
-	public boolean onRenderTick(EntityPlayer player, float partialTickTime) {
-		double dx = player.posX - currentTarget.posX;
-		double dz = player.posZ - currentTarget.posZ;
-		double angle = Math.atan2(dz, dx) * 180 / Math.PI;
-		double pitch = Math.atan2(player.posY - (currentTarget.posY + (currentTarget.height / 2.0F)), Math.sqrt(dx * dx + dz * dz)) * 180 / Math.PI;
-		double distance = player.getDistanceToEntity(currentTarget);
-		float rYaw = (float)(angle - player.rotationYaw);
-		while (rYaw > 180) { rYaw -= 360; }
-		while (rYaw < -180) { rYaw += 360; }
-		rYaw += 90F;
-		float rPitch = (float) pitch - (float)(10.0F / Math.sqrt(distance)) + (float)(distance * Math.PI / 90);
-		player.setAngles(rYaw, -(rPitch - player.rotationPitch));
-		return false;
-	}
+    @Override
+    public void onUpdate(EntityPlayer player) {
+        if (isActive() && player.worldObj.isRemote) {
+            if (Minecraft.getMinecraft().currentScreen != null || !updateTargets(player)) {
+                deactivate(player);
+            }
+        }
+        if (isComboInProgress()) {
+            combo.onUpdate(player);
+        }
+    }
 
-	@Override
-	public final boolean isLockedOn() {
-		return currentTarget != null;
-	}
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean onRenderTick(EntityPlayer player, float partialTickTime) {
+        double dx = player.posX - currentTarget.posX;
+        double dz = player.posZ - currentTarget.posZ;
+        double angle = Math.atan2(dz, dx) * 180 / Math.PI;
+        double pitch = Math
+            .atan2(player.posY - (currentTarget.posY + (currentTarget.height / 2.0F)), Math.sqrt(dx * dx + dz * dz))
+            * 180
+            / Math.PI;
+        double distance = player.getDistanceToEntity(currentTarget);
+        float rYaw = (float) (angle - player.rotationYaw);
+        while (rYaw > 180) {
+            rYaw -= 360;
+        }
+        while (rYaw < -180) {
+            rYaw += 360;
+        }
+        rYaw += 90F;
+        float rPitch = (float) pitch - (float) (10.0F / Math.sqrt(distance)) + (float) (distance * Math.PI / 90);
+        player.setAngles(rYaw, -(rPitch - player.rotationPitch));
+        return false;
+    }
 
-	@Override
-	public final EntityLivingBase getCurrentTarget() {
-		return currentTarget;
-	}
+    @Override
+    public final boolean isLockedOn() {
+        return currentTarget != null;
+    }
 
-	@Override
-	public void setCurrentTarget(EntityPlayer player, Entity target) {
-		if (target instanceof EntityLivingBase) {
-			currentTarget = (EntityLivingBase) target;
-		} else { // null or invalid target, deactivate skill
-			deactivate(player);
-		}
-	}
+    @Override
+    public final EntityLivingBase getCurrentTarget() {
+        return currentTarget;
+    }
 
-	/**
-	 * Returns the next closest new target or locks on to the previous target, if any
-	 */
-	@Override
-	@SideOnly(Side.CLIENT)
-	public final void getNextTarget(EntityPlayer player) {
-		EntityLivingBase nextTarget = null;
-		double dTarget = 0;
-		boolean priority = !Config.targetMobs;
-		List<EntityLivingBase> list = TargetUtils.acquireAllLookTargets(player, getRange(), getRange());
-		for (EntityLivingBase entity : list) {
-			if (entity == player) { continue; }
-			if (entity != currentTarget && entity != prevTarget && isTargetValid(player, entity)) {
-				if (nextTarget == null) {
-					dTarget = player.getDistanceSqToEntity(entity);
-					nextTarget = entity;
-				} else {
-					double distance = player.getDistanceSqToEntity(entity);
-					boolean closer = (distance < dTarget);
-					if (closer || (!priority && IMob.class.isAssignableFrom(entity.getClass()))) {
-						nextTarget = entity;
-						dTarget = distance;
-						if (!closer) {
-							priority = true;
-						}
-					}
-				}
-			}
-		}
-		if (nextTarget != null) {
-			prevTarget = currentTarget;
-			currentTarget = nextTarget;
-		} else {
-			nextTarget = currentTarget;
-			currentTarget = prevTarget;
-			prevTarget = nextTarget;
-		}
-		PacketDispatcher.sendToServer(new TargetIdPacket(this));
-	}
+    @Override
+    public void setCurrentTarget(EntityPlayer player, Entity target) {
+        if (target instanceof EntityLivingBase) {
+            currentTarget = (EntityLivingBase) target;
+        } else { // null or invalid target, deactivate skill
+            deactivate(player);
+        }
+    }
 
-	/**
-	 * Updates targets, setting to null if no longer valid and acquiring new target if necessary
-	 * @return returns true if the current target is valid
-	 */
-	@SideOnly(Side.CLIENT)
-	private boolean updateTargets(EntityPlayer player) {
-		if (!isTargetValid(player, prevTarget) || !TargetUtils.isTargetInSight(player, prevTarget)) {
-			prevTarget = null;
-		}
-		if (!isTargetValid(player, currentTarget)) {
-			currentTarget = null;
-			if (Config.enableAutoTarget) {
-				getNextTarget(player);
-			}
-		}
-		return isTargetValid(player, currentTarget);
-	}
+    /**
+     * Returns the next closest new target or locks on to the previous target, if any
+     */
+    @Override
+    @SideOnly(Side.CLIENT)
+    public final void getNextTarget(EntityPlayer player) {
+        EntityLivingBase nextTarget = null;
+        double dTarget = 0;
+        boolean priority = !Config.targetMobs;
+        List<EntityLivingBase> list = TargetUtils.acquireAllLookTargets(player, getRange(), getRange());
+        for (EntityLivingBase entity : list) {
+            if (entity == player) {
+                continue;
+            }
+            if (entity != currentTarget && entity != prevTarget && isTargetValid(player, entity)) {
+                if (nextTarget == null) {
+                    dTarget = player.getDistanceSqToEntity(entity);
+                    nextTarget = entity;
+                } else {
+                    double distance = player.getDistanceSqToEntity(entity);
+                    boolean closer = (distance < dTarget);
+                    if (closer || (!priority && IMob.class.isAssignableFrom(entity.getClass()))) {
+                        nextTarget = entity;
+                        dTarget = distance;
+                        if (!closer) {
+                            priority = true;
+                        }
+                    }
+                }
+            }
+        }
+        if (nextTarget != null) {
+            prevTarget = currentTarget;
+            currentTarget = nextTarget;
+        } else {
+            nextTarget = currentTarget;
+            currentTarget = prevTarget;
+            prevTarget = nextTarget;
+        }
+        PacketDispatcher.sendToServer(new TargetIdPacket(this));
+    }
 
-	/**
-	 * Returns true if target entity is valid: not dead and still within lock-on range
-	 */
-	@SideOnly(Side.CLIENT)
-	private boolean isTargetValid(EntityPlayer player, EntityLivingBase target) {
-		return (target != null && !target.isDead && target.getHealth() > 0F &&
-				player.getDistanceToEntity(target) < (float) getRange() && !target.isInvisible() &&
-				(Config.canTargetPlayers || !(target instanceof EntityPlayer)));
-	}
+    /**
+     * Updates targets, setting to null if no longer valid and acquiring new target if necessary
+     * 
+     * @return returns true if the current target is valid
+     */
+    @SideOnly(Side.CLIENT)
+    private boolean updateTargets(EntityPlayer player) {
+        if (!isTargetValid(player, prevTarget) || !TargetUtils.isTargetInSight(player, prevTarget)) {
+            prevTarget = null;
+        }
+        if (!isTargetValid(player, currentTarget)) {
+            currentTarget = null;
+            if (Config.enableAutoTarget) {
+                getNextTarget(player);
+            }
+        }
+        return isTargetValid(player, currentTarget);
+    }
 
-	@Override
-	public final Combo getCombo() {
-		return combo;
-	}
+    /**
+     * Returns true if target entity is valid: not dead and still within lock-on range
+     */
+    @SideOnly(Side.CLIENT)
+    private boolean isTargetValid(EntityPlayer player, EntityLivingBase target) {
+        return (target != null && !target.isDead
+            && target.getHealth() > 0F
+            && player.getDistanceToEntity(target) < (float) getRange()
+            && !target.isInvisible()
+            && (Config.canTargetPlayers || !(target instanceof EntityPlayer)));
+    }
 
-	@Override
-	public final void setCombo(Combo combo) {
-		this.combo = combo;
-	}
+    @Override
+    public final Combo getCombo() {
+        return combo;
+    }
 
-	@Override
-	public final boolean isComboInProgress() {
-		return (combo != null && !combo.isFinished());
-	}
+    @Override
+    public final void setCombo(Combo combo) {
+        this.combo = combo;
+    }
 
-	@Override
-	@SideOnly(Side.CLIENT)
-	public boolean onAttack(EntityPlayer player) {
-		Entity mouseOver = TargetUtils.getMouseOverEntity();
-		boolean attackHit = (isLockedOn() && mouseOver != null && TargetUtils.canReachTarget(player, mouseOver));
-		if (!attackHit) {
-			PlayerUtils.playRandomizedSound(player, Sounds.SWORD_MISS, 0.4F, 0.5F);
-			if (isComboInProgress()) {
-				PacketDispatcher.sendToServer(new EndComboPacket(this));
-			}
-		}
-		return attackHit;
-	}
+    @Override
+    public final boolean isComboInProgress() {
+        return (combo != null && !combo.isFinished());
+    }
 
-	@Override
-	public void onHurtTarget(EntityPlayer player, LivingHurtEvent event) {
-		if (!isLockedOn() || !isValidComboDamage(player, event.source)) { return; }
-		if (combo == null || combo.isFinished()) {
-			combo = new Combo(player, this, getMaxComboSize(), getComboTimeLimit());
-		}
-		float damage = DirtyEntityAccessor.getModifiedDamage(event.entityLiving, event.source, event.ammount);
-		if (damage > 0) {
-			if (!(event.source instanceof IComboDamageFull) || ((IComboDamageFull) event.source).increaseComboCount(player)) {
-				combo.add(player, event.entityLiving, damage);
-			} else {
-				combo.addDamageOnly(player, damage, ((IComboDamageFull) event.source).applyDamageToPrevious(player));
-			}
-		}
-		String sound = getComboDamageSound(player, event.source);
-		if (sound != null) {
-			WorldUtils.playSoundAtEntity(player, sound, 0.4F, 0.5F);
-		}
-	}
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean onAttack(EntityPlayer player) {
+        Entity mouseOver = TargetUtils.getMouseOverEntity();
+        boolean attackHit = (isLockedOn() && mouseOver != null && TargetUtils.canReachTarget(player, mouseOver));
+        if (!attackHit) {
+            PlayerUtils.playRandomizedSound(player, Sounds.SWORD_MISS, 0.4F, 0.5F);
+            if (isComboInProgress()) {
+                PacketDispatcher.sendToServer(new EndComboPacket(this));
+            }
+        }
+        return attackHit;
+    }
 
-	private boolean isValidComboDamage(EntityPlayer player, DamageSource source) {
-		if (source instanceof IComboDamage) {
-			return ((IComboDamage) source).isComboDamage(player);
-		} else if (source instanceof IDamageAoE && ((IDamageAoE) source).isAoEDamage()) {
-			return false;
-		}
-		return !source.isProjectile();
-	}
+    @Override
+    public void onHurtTarget(EntityPlayer player, LivingHurtEvent event) {
+        if (!isLockedOn() || !isValidComboDamage(player, event.source)) {
+            return;
+        }
+        if (combo == null || combo.isFinished()) {
+            combo = new Combo(player, this, getMaxComboSize(), getComboTimeLimit());
+        }
+        float damage = DirtyEntityAccessor.getModifiedDamage(event.entityLiving, event.source, event.ammount);
+        if (damage > 0) {
+            if (!(event.source instanceof IComboDamageFull)
+                || ((IComboDamageFull) event.source).increaseComboCount(player)) {
+                combo.add(player, event.entityLiving, damage);
+            } else {
+                combo.addDamageOnly(player, damage, ((IComboDamageFull) event.source).applyDamageToPrevious(player));
+            }
+        }
+        String sound = getComboDamageSound(player, event.source);
+        if (sound != null) {
+            WorldUtils.playSoundAtEntity(player, sound, 0.4F, 0.5F);
+        }
+    }
 
-	private String getComboDamageSound(EntityPlayer player, DamageSource source) {
-		if (source instanceof IComboDamageFull && !((IComboDamageFull) source).playDefaultSound(player)) {
-			return ((IComboDamageFull) source).getHitSound(player);
-		} else if (source.getDamageType().equals("player")) {
-			return (PlayerUtils.isSword(player.getHeldItem()) ? Sounds.SWORD_CUT : Sounds.HURT_FLESH);
-		}
-		return null;
-	}
+    private boolean isValidComboDamage(EntityPlayer player, DamageSource source) {
+        if (source instanceof IComboDamage) {
+            return ((IComboDamage) source).isComboDamage(player);
+        } else if (source instanceof IDamageAoE && ((IDamageAoE) source).isAoEDamage()) {
+            return false;
+        }
+        return !source.isProjectile();
+    }
 
-	@Override
-	public void onPlayerHurt(EntityPlayer player, LivingHurtEvent event) {
-		if (isComboInProgress() && DirtyEntityAccessor.getModifiedDamage(player, event.source, event.ammount) > (0.5F * level)) {
-			WorldUtils.playSoundAtEntity(player, Sounds.GRUNT, 0.3F, 0.8F);
-			combo.endCombo(player);
-		}
-	}
+    private String getComboDamageSound(EntityPlayer player, DamageSource source) {
+        if (source instanceof IComboDamageFull && !((IComboDamageFull) source).playDefaultSound(player)) {
+            return ((IComboDamageFull) source).getHitSound(player);
+        } else if (source.getDamageType()
+            .equals("player")) {
+                return (PlayerUtils.isSword(player.getHeldItem()) ? Sounds.SWORD_CUT : Sounds.HURT_FLESH);
+            }
+        return null;
+    }
+
+    @Override
+    public void onPlayerHurt(EntityPlayer player, LivingHurtEvent event) {
+        if (isComboInProgress()
+            && DirtyEntityAccessor.getModifiedDamage(player, event.source, event.ammount) > (0.5F * level)) {
+            WorldUtils.playSoundAtEntity(player, Sounds.GRUNT, 0.3F, 0.8F);
+            combo.endCombo(player);
+        }
+    }
 }

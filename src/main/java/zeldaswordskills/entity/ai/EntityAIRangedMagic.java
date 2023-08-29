@@ -1,18 +1,18 @@
 /**
-    Copyright (C) <2015> <coolAlias>
-
-    This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
-    you can redistribute it and/or modify it under the terms of the GNU
-    General Public License as published by the Free Software Foundation,
-    either version 3 of the License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (C) <2015> <coolAlias>
+ * 
+ * This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
+ * you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package zeldaswordskills.entity.ai;
@@ -37,137 +37,146 @@ import net.minecraft.util.MathHelper;
  * Uses MutexBit 8 + 4 + 1.
  *
  */
-public class EntityAIRangedMagic extends EntityAIBase
-{
-	/** Same entity as caster, but as an instance of EntityLiving */
-	private final EntityLiving entity;
+public class EntityAIRangedMagic extends EntityAIBase {
 
-	/** Same as entity, but as an instance of IMagicUser */
-	private final IMagicUser caster;
+    /** Same entity as caster, but as an instance of EntityLiving */
+    private final EntityLiving entity;
 
-	/** Timer for casting time */
-	private int castingTimer;
+    /** Same as entity, but as an instance of IMagicUser */
+    private final IMagicUser caster;
 
-	/** Minimum time between casting attempts */
-	private final int minCastInterval;
+    /** Timer for casting time */
+    private int castingTimer;
 
-	/** Maximum time between casting attempts */
-	private final int maxCastInterval;
+    /** Minimum time between casting attempts */
+    private final int minCastInterval;
 
-	/** Time since last attack */
-	private int attackTimer;
+    /** Maximum time between casting attempts */
+    private final int maxCastInterval;
 
-	/** Distance at which max damage will be inflicted, with damage decreasing moving closer to the target */
-	private final double minDistance;
+    /** Time since last attack */
+    private int attackTimer;
 
-	/** Distance squared at which a target is considered 'close enough' to attack */
-	private final double minDistanceSq;
+    /** Distance at which max damage will be inflicted, with damage decreasing moving closer to the target */
+    private final double minDistance;
 
-	/** Current attack target */
-	private EntityLivingBase attackTarget;
+    /** Distance squared at which a target is considered 'close enough' to attack */
+    private final double minDistanceSq;
 
-	/** Number of ticks target has been out of sight */
-	private int unseenTimer;
+    /** Current attack target */
+    private EntityLivingBase attackTarget;
 
-	/** Maximum time target can remain out of sight before caster aborts spell */
-	private static final int MAX_TIME_UNSEEN = 10;
+    /** Number of ticks target has been out of sight */
+    private int unseenTimer;
 
-	/**
-	 * @param entity			The spell-casting entity
-	 * @param minCastInterval	Minimum interval between spell-casting attempts
-	 * @param maxCastInterval	Maximum interval between spell-casting attempts
-	 * @param distance			Interval between casting attempts reaches max at this distance,
-	 * 							and is also the casting range for attacking targets
-	 */
-	public <T extends EntityLiving & IMagicUser> EntityAIRangedMagic(T entity, int minCastInterval, int maxCastInterval, double distance) {
-		this.entity = entity;
-		this.caster = entity;
-		this.minCastInterval = minCastInterval;
-		this.maxCastInterval = maxCastInterval;
-		this.minDistance = distance;
-		this.minDistanceSq = (distance * distance);
-		this.setMutexBits(15); // incompatible with swimming, teleporting, and bit1 and bit2 tasks
-	}
+    /** Maximum time target can remain out of sight before caster aborts spell */
+    private static final int MAX_TIME_UNSEEN = 10;
 
-	/**
-	 * Forcefully interrupts the spell-casting attempt, such as when taking damage
-	 */
-	public void interruptCasting() {
-		resetTask();
-	}
+    /**
+     * @param entity          The spell-casting entity
+     * @param minCastInterval Minimum interval between spell-casting attempts
+     * @param maxCastInterval Maximum interval between spell-casting attempts
+     * @param distance        Interval between casting attempts reaches max at this distance,
+     *                        and is also the casting range for attacking targets
+     */
+    public <T extends EntityLiving & IMagicUser> EntityAIRangedMagic(T entity, int minCastInterval, int maxCastInterval,
+        double distance) {
+        this.entity = entity;
+        this.caster = entity;
+        this.minCastInterval = minCastInterval;
+        this.maxCastInterval = maxCastInterval;
+        this.minDistance = distance;
+        this.minDistanceSq = (distance * distance);
+        this.setMutexBits(15); // incompatible with swimming, teleporting, and bit1 and bit2 tasks
+    }
 
-	@Override
-	public boolean continueExecuting() {
-		if (attackTarget == null) {
-			return false;
-		} else if (castingTimer < 1) {
-			return false;
-		} else if (!entity.getEntitySenses().canSee(attackTarget) && ++unseenTimer > MAX_TIME_UNSEEN) {
-			unseenTimer = 0;
-			return false;
-		} else if (!caster.canContinueCasting()) {
-			return false;
-		}
-		return entity.getDistanceSq(attackTarget.posX, attackTarget.boundingBox.minY, attackTarget.posZ) < minDistanceSq;
-	}
+    /**
+     * Forcefully interrupts the spell-casting attempt, such as when taking damage
+     */
+    public void interruptCasting() {
+        resetTask();
+    }
 
-	@Override
-	public boolean shouldExecute() {
-		EntityLivingBase target = entity.getAttackTarget();
-		if (target == null) {
-			return false;
-		}
-		attackTarget = target;
-		double d = entity.getDistanceSq(attackTarget.posX, attackTarget.boundingBox.minY, attackTarget.posZ);
-		boolean flag = entity.getEntitySenses().canSee(attackTarget);
+    @Override
+    public boolean continueExecuting() {
+        if (attackTarget == null) {
+            return false;
+        } else if (castingTimer < 1) {
+            return false;
+        } else if (!entity.getEntitySenses()
+            .canSee(attackTarget) && ++unseenTimer > MAX_TIME_UNSEEN) {
+                unseenTimer = 0;
+                return false;
+            } else if (!caster.canContinueCasting()) {
+                return false;
+            }
+        return entity.getDistanceSq(attackTarget.posX, attackTarget.boundingBox.minY, attackTarget.posZ)
+            < minDistanceSq;
+    }
 
-		if (!flag) {
-			interruptCasting(); // calls resetTask
-			return false;
-		}
-		// Handle attackTimer here so other tasks such as teleportation have a chance to execute
-		if (castingTimer == 0) {
-			entity.getLookHelper().setLookPositionWithEntity(attackTarget, 30.0F, 30.0F);
-			if (--attackTimer == 0) {
-				if (d > minDistanceSq || !flag) {
-					return false;
-				}
-				// task finally starts executing if spell begins charging
-				castingTimer = caster.beginSpellCasting(attackTarget);
-				return castingTimer > 0;
-			} else if (attackTimer < 0) {
-				float f = (float)(MathHelper.sqrt_double(d) / minDistance);
-				attackTimer = MathHelper.floor_float(f * (float)(maxCastInterval - minCastInterval) + (float) minCastInterval);
-			}
-		}
-		return false;
-	}
+    @Override
+    public boolean shouldExecute() {
+        EntityLivingBase target = entity.getAttackTarget();
+        if (target == null) {
+            return false;
+        }
+        attackTarget = target;
+        double d = entity.getDistanceSq(attackTarget.posX, attackTarget.boundingBox.minY, attackTarget.posZ);
+        boolean flag = entity.getEntitySenses()
+            .canSee(attackTarget);
 
-	@Override
-	public void startExecuting() {
-		entity.getNavigator().clearPathEntity();
-	}
+        if (!flag) {
+            interruptCasting(); // calls resetTask
+            return false;
+        }
+        // Handle attackTimer here so other tasks such as teleportation have a chance to execute
+        if (castingTimer == 0) {
+            entity.getLookHelper()
+                .setLookPositionWithEntity(attackTarget, 30.0F, 30.0F);
+            if (--attackTimer == 0) {
+                if (d > minDistanceSq || !flag) {
+                    return false;
+                }
+                // task finally starts executing if spell begins charging
+                castingTimer = caster.beginSpellCasting(attackTarget);
+                return castingTimer > 0;
+            } else if (attackTimer < 0) {
+                float f = (float) (MathHelper.sqrt_double(d) / minDistance);
+                attackTimer = MathHelper
+                    .floor_float(f * (float) (maxCastInterval - minCastInterval) + (float) minCastInterval);
+            }
+        }
+        return false;
+    }
 
-	@Override
-	public void resetTask() {
-		caster.stopCasting();
-		attackTarget = null;
-		castingTimer = 0;
-		unseenTimer = 0;
-	}
+    @Override
+    public void startExecuting() {
+        entity.getNavigator()
+            .clearPathEntity();
+    }
 
-	@Override
-	public void updateTask() {
-		if (castingTimer > 0) {
-			--castingTimer;
-			entity.getLookHelper().setLookPositionWithEntity(attackTarget, 30.0F, 30.0F);
-			if (castingTimer == 0) {
-				double d = entity.getDistanceSq(attackTarget.posX, attackTarget.boundingBox.minY, attackTarget.posZ);
-				float f = (float)(MathHelper.sqrt_double(d) / minDistance);
-				float f1 = MathHelper.clamp_float(f, 0.1F, 1.0F);
-				caster.castRangedSpell(attackTarget, f1);
-				attackTimer = MathHelper.floor_float(f * (float)(maxCastInterval - minCastInterval) + (float) minCastInterval);
-			}
-		}
-	}
+    @Override
+    public void resetTask() {
+        caster.stopCasting();
+        attackTarget = null;
+        castingTimer = 0;
+        unseenTimer = 0;
+    }
+
+    @Override
+    public void updateTask() {
+        if (castingTimer > 0) {
+            --castingTimer;
+            entity.getLookHelper()
+                .setLookPositionWithEntity(attackTarget, 30.0F, 30.0F);
+            if (castingTimer == 0) {
+                double d = entity.getDistanceSq(attackTarget.posX, attackTarget.boundingBox.minY, attackTarget.posZ);
+                float f = (float) (MathHelper.sqrt_double(d) / minDistance);
+                float f1 = MathHelper.clamp_float(f, 0.1F, 1.0F);
+                caster.castRangedSpell(attackTarget, f1);
+                attackTimer = MathHelper
+                    .floor_float(f * (float) (maxCastInterval - minCastInterval) + (float) minCastInterval);
+            }
+        }
+    }
 }

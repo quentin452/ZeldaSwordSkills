@@ -1,18 +1,18 @@
 /**
-    Copyright (C) <2015> <coolAlias>
-
-    This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
-    you can redistribute it and/or modify it under the terms of the GNU
-    General Public License as published by the Free Software Foundation,
-    either version 3 of the License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (C) <2015> <coolAlias>
+ * 
+ * This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
+ * you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package zeldaswordskills.entity.projectile;
@@ -26,84 +26,93 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ChestGenHooks;
+
 import zeldaswordskills.block.ZSSBlocks;
 import zeldaswordskills.ref.Config;
 import zeldaswordskills.ref.Sounds;
 import zeldaswordskills.util.WorldUtils;
 import zeldaswordskills.world.gen.DungeonLootLists;
 
-public class EntityCeramicJar extends EntityThrowable
-{
-	/** The stack to drop upon impact, if any */
-	private ItemStack stack = null;
+public class EntityCeramicJar extends EntityThrowable {
 
-	public EntityCeramicJar(World world) {
-		super(world);
-	}
+    /** The stack to drop upon impact, if any */
+    private ItemStack stack = null;
 
-	public EntityCeramicJar(World world, EntityLivingBase entity) {
-		super(world, entity);
-	}
+    public EntityCeramicJar(World world) {
+        super(world);
+    }
 
-	public EntityCeramicJar(World world, double x, double y, double z) {
-		super(world, x, y, z);
-	}
+    public EntityCeramicJar(World world, EntityLivingBase entity) {
+        super(world, entity);
+    }
 
-	/**
-	 * Sets the stack that will drop upon impact
-	 */
-	public EntityCeramicJar setStack(ItemStack stack) {
-		this.stack = stack.copy();
-		return this;
-	}
+    public EntityCeramicJar(World world, double x, double y, double z) {
+        super(world, x, y, z);
+    }
 
-	@Override
-	protected float func_70182_d() {
-		return 1.0F;
-	}
+    /**
+     * Sets the stack that will drop upon impact
+     */
+    public EntityCeramicJar setStack(ItemStack stack) {
+        this.stack = stack.copy();
+        return this;
+    }
 
-	@Override
-	protected float getGravityVelocity() {
-		return 0.1F;
-	}
+    @Override
+    protected float func_70182_d() {
+        return 1.0F;
+    }
 
-	@Override
-	protected void onImpact(MovingObjectPosition mop) {
-		if (mop.entityHit != null) {
-			mop.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, getThrower()), 2.0F);
-		}
-		for (int i = 0; i < 20; ++i) {
-			worldObj.spawnParticle("blockcrack_" + Block.getIdFromBlock(ZSSBlocks.ceramicJar) + "_0", posX, posY, posZ, motionX + rand.nextGaussian(), 0.01D, motionZ + rand.nextGaussian());
-		}
+    @Override
+    protected float getGravityVelocity() {
+        return 0.1F;
+    }
 
-		WorldUtils.playSoundAtEntity(this, Sounds.BREAK_JAR, 0.4F, 0.5F);
+    @Override
+    protected void onImpact(MovingObjectPosition mop) {
+        if (mop.entityHit != null) {
+            mop.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, getThrower()), 2.0F);
+        }
+        for (int i = 0; i < 20; ++i) {
+            worldObj.spawnParticle(
+                "blockcrack_" + Block.getIdFromBlock(ZSSBlocks.ceramicJar) + "_0",
+                posX,
+                posY,
+                posZ,
+                motionX + rand.nextGaussian(),
+                0.01D,
+                motionZ + rand.nextGaussian());
+        }
 
-		if (stack == null && rand.nextFloat() < Config.getJarDropChance()) {
-			stack = ChestGenHooks.getInfo(DungeonLootLists.JAR_DROPS).getOneItem(rand);
-		}
-		if (stack != null) {
-			WorldUtils.spawnItemWithRandom(worldObj, stack, (int) posX, (int) posY + 1, (int) posZ);
-		}
-		if (!worldObj.isRemote) {
-			setDead();
-		}
-	}
+        WorldUtils.playSoundAtEntity(this, Sounds.BREAK_JAR, 0.4F, 0.5F);
 
-	@Override
-	public void writeEntityToNBT(NBTTagCompound compound) {
-		super.writeEntityToNBT(compound);
-		if (stack != null) {
-			NBTTagCompound item = new NBTTagCompound();
-			stack.writeToNBT(item);
-			compound.setTag("jarItem", item);
-		}
-	}
+        if (stack == null && rand.nextFloat() < Config.getJarDropChance()) {
+            stack = ChestGenHooks.getInfo(DungeonLootLists.JAR_DROPS)
+                .getOneItem(rand);
+        }
+        if (stack != null) {
+            WorldUtils.spawnItemWithRandom(worldObj, stack, (int) posX, (int) posY + 1, (int) posZ);
+        }
+        if (!worldObj.isRemote) {
+            setDead();
+        }
+    }
 
-	@Override
-	public void readEntityFromNBT(NBTTagCompound compound) {
-		super.readEntityFromNBT(compound);
-		if (compound.hasKey("jarItem")) {
-			stack = ItemStack.loadItemStackFromNBT(compound.getCompoundTag("jarItem"));
-		}
-	}
+    @Override
+    public void writeEntityToNBT(NBTTagCompound compound) {
+        super.writeEntityToNBT(compound);
+        if (stack != null) {
+            NBTTagCompound item = new NBTTagCompound();
+            stack.writeToNBT(item);
+            compound.setTag("jarItem", item);
+        }
+    }
+
+    @Override
+    public void readEntityFromNBT(NBTTagCompound compound) {
+        super.readEntityFromNBT(compound);
+        if (compound.hasKey("jarItem")) {
+            stack = ItemStack.loadItemStackFromNBT(compound.getCompoundTag("jarItem"));
+        }
+    }
 }

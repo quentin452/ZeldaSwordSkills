@@ -1,18 +1,18 @@
 /**
-    Copyright (C) <2018> <coolAlias>
-
-    This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
-    you can redistribute it and/or modify it under the terms of the GNU
-    General Public License as published by the Free Software Foundation,
-    either version 3 of the License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (C) <2018> <coolAlias>
+ * 
+ * This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
+ * you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package zeldaswordskills.command;
@@ -27,81 +27,103 @@ import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentTranslation;
+
 import zeldaswordskills.entity.player.ZSSPlayerSkills;
 import zeldaswordskills.skills.SkillBase;
 import zeldaswordskills.util.PlayerUtils;
 
-public class CommandRemoveSkill extends CommandBase
-{
-	public static final ICommand INSTANCE = new CommandRemoveSkill();
+public class CommandRemoveSkill extends CommandBase {
 
-	private CommandRemoveSkill() {}
+    public static final ICommand INSTANCE = new CommandRemoveSkill();
 
-	@Override
-	public String getCommandName() {
-		return "removeskill";
-	}
+    private CommandRemoveSkill() {}
 
-	@Override
-	public int getRequiredPermissionLevel() {
-		return 2;
-	}
+    @Override
+    public String getCommandName() {
+        return "removeskill";
+    }
 
-	/**
-	 * removeskill <player> <skill | all>
-	 */
-	@Override
-	public String getCommandUsage(ICommandSender player) {
-		return "commands.removeskill.usage";
-	}
+    @Override
+    public int getRequiredPermissionLevel() {
+        return 2;
+    }
 
-	@Override
-	public void processCommand(ICommandSender sender, String[] args) {
-		if (args == null || args.length != 2) {
-			throw new WrongUsageException(getCommandUsage(sender));
-		}
-		EntityPlayerMP commandSender = getCommandSenderAsPlayer(sender);
-		EntityPlayerMP player = getPlayer(sender, args[0]);
-		ZSSPlayerSkills skills = ZSSPlayerSkills.get(player);
-		boolean all = ("all").equals(args[1]);
-		SkillBase skill = null;
-		if (!all) {
-			skill = SkillBase.getSkillByName(args[1]);
-			if (skill == null) {
-				throw new CommandException("commands.skill.generic.unknown", args[1]);
-			}
-		}
-		if (skills.removeSkill(args[1])) {
-			if (all) {
-				PlayerUtils.sendTranslatedChat(commandSender, "commands.removeskill.success.all", player.getCommandSenderName());
-				if (player != commandSender) {
-					PlayerUtils.sendTranslatedChat(player, "commands.removeskill.notify.all", commandSender.getCommandSenderName());
-				}
-			} else {
-				PlayerUtils.sendTranslatedChat(commandSender, "commands.removeskill.success.one", player.getCommandSenderName(), new ChatComponentTranslation(skill.getTranslationString()));
-				if (player != commandSender) {
-					PlayerUtils.sendTranslatedChat(player, "commands.removeskill.notify.one", commandSender.getCommandSenderName(), new ChatComponentTranslation(skill.getTranslationString()));
-				}
-			}
-		} else { // player didn't have this skill
-			if (all) {
-				throw new CommandException("commands.removeskill.failure.all", player.getCommandSenderName());
-			} else {
-				throw new CommandException("commands.removeskill.failure.one", player.getCommandSenderName(), new ChatComponentTranslation(skill.getTranslationString()));
-			}
-		}
-	}
+    /**
+     * removeskill <player> <skill | all>
+     */
+    @Override
+    public String getCommandUsage(ICommandSender player) {
+        return "commands.removeskill.usage";
+    }
 
-	@Override
-	public List addTabCompletionOptions(ICommandSender sender, String[] args) {
-		switch (args.length) {
-		case 1: return getListOfStringsMatchingLastWord(args, getPlayers());
-		case 2: return getListOfStringsMatchingLastWord(args, SkillBase.getSkillNames());
-		default: return null;
-		}
-	}
+    @Override
+    public void processCommand(ICommandSender sender, String[] args) {
+        if (args == null || args.length != 2) {
+            throw new WrongUsageException(getCommandUsage(sender));
+        }
+        EntityPlayerMP commandSender = getCommandSenderAsPlayer(sender);
+        EntityPlayerMP player = getPlayer(sender, args[0]);
+        ZSSPlayerSkills skills = ZSSPlayerSkills.get(player);
+        boolean all = ("all").equals(args[1]);
+        SkillBase skill = null;
+        if (!all) {
+            skill = SkillBase.getSkillByName(args[1]);
+            if (skill == null) {
+                throw new CommandException("commands.skill.generic.unknown", args[1]);
+            }
+        }
+        if (skills.removeSkill(args[1])) {
+            if (all) {
+                PlayerUtils.sendTranslatedChat(
+                    commandSender,
+                    "commands.removeskill.success.all",
+                    player.getCommandSenderName());
+                if (player != commandSender) {
+                    PlayerUtils.sendTranslatedChat(
+                        player,
+                        "commands.removeskill.notify.all",
+                        commandSender.getCommandSenderName());
+                }
+            } else {
+                PlayerUtils.sendTranslatedChat(
+                    commandSender,
+                    "commands.removeskill.success.one",
+                    player.getCommandSenderName(),
+                    new ChatComponentTranslation(skill.getTranslationString()));
+                if (player != commandSender) {
+                    PlayerUtils.sendTranslatedChat(
+                        player,
+                        "commands.removeskill.notify.one",
+                        commandSender.getCommandSenderName(),
+                        new ChatComponentTranslation(skill.getTranslationString()));
+                }
+            }
+        } else { // player didn't have this skill
+            if (all) {
+                throw new CommandException("commands.removeskill.failure.all", player.getCommandSenderName());
+            } else {
+                throw new CommandException(
+                    "commands.removeskill.failure.one",
+                    player.getCommandSenderName(),
+                    new ChatComponentTranslation(skill.getTranslationString()));
+            }
+        }
+    }
 
-	protected String[] getPlayers() {
-		return MinecraftServer.getServer().getAllUsernames();
-	}
+    @Override
+    public List addTabCompletionOptions(ICommandSender sender, String[] args) {
+        switch (args.length) {
+            case 1:
+                return getListOfStringsMatchingLastWord(args, getPlayers());
+            case 2:
+                return getListOfStringsMatchingLastWord(args, SkillBase.getSkillNames());
+            default:
+                return null;
+        }
+    }
+
+    protected String[] getPlayers() {
+        return MinecraftServer.getServer()
+            .getAllUsernames();
+    }
 }

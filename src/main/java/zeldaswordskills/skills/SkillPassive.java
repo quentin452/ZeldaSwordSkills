@@ -1,18 +1,18 @@
 /**
-    Copyright (C) <2015> <coolAlias>
-
-    This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
-    you can redistribute it and/or modify it under the terms of the GNU
-    General Public License as published by the Free Software Foundation,
-    either version 3 of the License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (C) <2015> <coolAlias>
+ * 
+ * This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
+ * you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package zeldaswordskills.skills;
@@ -20,43 +20,44 @@ package zeldaswordskills.skills;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 
-public class SkillPassive extends SkillBase
-{
-	/**
-	 * Constructs the first instance of a skill and stores it in the skill list
-	 * @param name	this is the unlocalized name and should not contain any spaces
-	 */
-	protected SkillPassive(String name) {
-		super(name, true);
-	}
+public class SkillPassive extends SkillBase {
 
-	protected SkillPassive(SkillBase skill) {
-		super(skill);
-	}
+    /**
+     * Constructs the first instance of a skill and stores it in the skill list
+     * 
+     * @param name this is the unlocalized name and should not contain any spaces
+     */
+    protected SkillPassive(String name) {
+        super(name, true);
+    }
 
-	@Override
-	public SkillPassive newInstance() {
-		return new SkillPassive(this);
-	}
+    protected SkillPassive(SkillBase skill) {
+        super(skill);
+    }
 
-	@Override
-	protected void levelUp(EntityPlayer player) {}
+    @Override
+    public SkillPassive newInstance() {
+        return new SkillPassive(this);
+    }
 
-	@Override
-	public final void writeToNBT(NBTTagCompound compound) {
-		compound.setByte("id", getId());
-		compound.setByte("level", level);
-	}
+    @Override
+    protected void levelUp(EntityPlayer player) {}
 
-	@Override
-	public final void readFromNBT(NBTTagCompound compound) {
-		level = compound.getByte("level");
-	}
+    @Override
+    public final void writeToNBT(NBTTagCompound compound) {
+        compound.setByte("id", getId());
+        compound.setByte("level", level);
+    }
 
-	@Override
-	public final SkillPassive loadFromNBT(NBTTagCompound compound) {
-		SkillPassive skill = (SkillPassive) getNewSkillInstance(compound.getByte("id"));
-		skill.readFromNBT(compound);
-		return skill;
-	}
+    @Override
+    public final void readFromNBT(NBTTagCompound compound) {
+        level = compound.getByte("level");
+    }
+
+    @Override
+    public final SkillPassive loadFromNBT(NBTTagCompound compound) {
+        SkillPassive skill = (SkillPassive) getNewSkillInstance(compound.getByte("id"));
+        skill.readFromNBT(compound);
+        return skill;
+    }
 }

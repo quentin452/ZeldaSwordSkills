@@ -1,18 +1,18 @@
 /**
-    Copyright (C) <2015> <coolAlias>
-
-    This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
-    you can redistribute it and/or modify it under the terms of the GNU
-    General Public License as published by the Free Software Foundation,
-    either version 3 of the License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (C) <2015> <coolAlias>
+ * 
+ * This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
+ * you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package zeldaswordskills.block.tileentity;
@@ -23,6 +23,7 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
+
 import zeldaswordskills.ref.Config;
 
 /**
@@ -32,64 +33,68 @@ import zeldaswordskills.ref.Config;
  */
 public class TileEntityCeramicJar extends TileEntityInventory {
 
-	public TileEntityCeramicJar() {
-		inventory = new ItemStack[1];
-	}
+    public TileEntityCeramicJar() {
+        inventory = new ItemStack[1];
+    }
 
-	private boolean shouldUpdate() {
-		return (worldObj.getTotalWorldTime() % 20 == 0 && worldObj.rand.nextInt(8) == 0 &&
-				worldObj.getClosestPlayer(xCoord + 0.5D, yCoord + 0.5D, zCoord + 0.5D, 16.0D) != null);
-	}
+    private boolean shouldUpdate() {
+        return (worldObj.getTotalWorldTime() % 20 == 0 && worldObj.rand.nextInt(8) == 0
+            && worldObj.getClosestPlayer(xCoord + 0.5D, yCoord + 0.5D, zCoord + 0.5D, 16.0D) != null);
+    }
 
-	@Override
-	public boolean canUpdate() {
-		return Config.doJarsUpdate();
-	}
+    @Override
+    public boolean canUpdate() {
+        return Config.doJarsUpdate();
+    }
 
-	@Override
-	public void updateEntity() {
-		if (!worldObj.isRemote && getStackInSlot(0) == null && shouldUpdate()) {
-			List<EntityItem> list = worldObj.getEntitiesWithinAABB(EntityItem.class, AxisAlignedBB.
-					getBoundingBox(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 1, zCoord + 1).expand(1.0D, 1.0D, 1.0D));
-			for (EntityItem item : list) {
-				if (!item.isEntityAlive() || item.ticksExisted < Math.max(item.delayBeforeCanPickup, 40)) {
-					continue;
-				}
-				ItemStack stack;
-				if (item.getEntityItem().stackSize > 64) {
-					stack = item.getEntityItem().splitStack(64);
-				} else {
-					stack = item.getEntityItem().copy();
-					item.setDead();
-				}
-				setInventorySlotContents(0, stack);
-				break;
-			}
-		}
-	}
+    @Override
+    public void updateEntity() {
+        if (!worldObj.isRemote && getStackInSlot(0) == null && shouldUpdate()) {
+            List<EntityItem> list = worldObj.getEntitiesWithinAABB(
+                EntityItem.class,
+                AxisAlignedBB.getBoundingBox(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 1, zCoord + 1)
+                    .expand(1.0D, 1.0D, 1.0D));
+            for (EntityItem item : list) {
+                if (!item.isEntityAlive() || item.ticksExisted < Math.max(item.delayBeforeCanPickup, 40)) {
+                    continue;
+                }
+                ItemStack stack;
+                if (item.getEntityItem().stackSize > 64) {
+                    stack = item.getEntityItem()
+                        .splitStack(64);
+                } else {
+                    stack = item.getEntityItem()
+                        .copy();
+                    item.setDead();
+                }
+                setInventorySlotContents(0, stack);
+                break;
+            }
+        }
+    }
 
-	@Override
-	public String getInventoryName() {
-		return "";
-	}
+    @Override
+    public String getInventoryName() {
+        return "";
+    }
 
-	@Override
-	public boolean hasCustomInventoryName() {
-		return true;
-	}
+    @Override
+    public boolean hasCustomInventoryName() {
+        return true;
+    }
 
-	@Override
-	public int getInventoryStackLimit() {
-		return 64;
-	}
+    @Override
+    public int getInventoryStackLimit() {
+        return 64;
+    }
 
-	@Override
-	public boolean isUseableByPlayer(EntityPlayer player) {
-		return false;
-	}
+    @Override
+    public boolean isUseableByPlayer(EntityPlayer player) {
+        return false;
+    }
 
-	@Override
-	public boolean isItemValidForSlot(int slot, ItemStack stack) {
-		return true;
-	}
+    @Override
+    public boolean isItemValidForSlot(int slot, ItemStack stack) {
+        return true;
+    }
 }

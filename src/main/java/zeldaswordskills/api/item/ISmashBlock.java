@@ -1,18 +1,18 @@
 /**
-    Copyright (C) <2015> <coolAlias>
-
-    This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
-    you can redistribute it and/or modify it under the terms of the GNU
-    General Public License as published by the Free Software Foundation,
-    either version 3 of the License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (C) <2015> <coolAlias>
+ * 
+ * This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
+ * you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package zeldaswordskills.api.item;
@@ -20,6 +20,7 @@ package zeldaswordskills.api.item;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+
 import zeldaswordskills.api.block.BlockWeight;
 
 /**
@@ -39,28 +40,31 @@ import zeldaswordskills.api.block.BlockWeight;
  * exempt block material:
  * 
  * // func_150897_b is canHarvestBlock
+ * 
  * @Override
- * public boolean func_150897_b(Block block) {
- * 	return block instanceof ISmashable;
- * }
+ *           public boolean func_150897_b(Block block) {
+ *           return block instanceof ISmashable;
+ *           }
  *
  */
 public interface ISmashBlock {
 
-	/**
-	 * Returns the strength of this item for the purpose of smashing blocks
-	 * Player-, ItemStack-, and Block- sensitive
-	 * @param block the block that was struck
-	 * @param meta the metadata of the block struck
-	 */
-	BlockWeight getSmashStrength(EntityPlayer player, ItemStack stack, Block block, int meta);
+    /**
+     * Returns the strength of this item for the purpose of smashing blocks
+     * Player-, ItemStack-, and Block- sensitive
+     * 
+     * @param block the block that was struck
+     * @param meta  the metadata of the block struck
+     */
+    BlockWeight getSmashStrength(EntityPlayer player, ItemStack stack, Block block, int meta);
 
-	/**
-	 * Called after the player has attempted to smash a block with the stack,
-	 * making it ideal for damaging the stack, for example
-	 * @param meta the metadata of the block before it was smashed
-	 * @param wasSmashed true if the smash was considered successful
-	 */
-	void onBlockSmashed(EntityPlayer player, ItemStack stack, Block block, int meta, boolean wasSmashed);
+    /**
+     * Called after the player has attempted to smash a block with the stack,
+     * making it ideal for damaging the stack, for example
+     * 
+     * @param meta       the metadata of the block before it was smashed
+     * @param wasSmashed true if the smash was considered successful
+     */
+    void onBlockSmashed(EntityPlayer player, ItemStack stack, Block block, int meta, boolean wasSmashed);
 
 }

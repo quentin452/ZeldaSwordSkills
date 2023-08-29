@@ -1,27 +1,28 @@
 /**
-    Copyright (C) <2015> <coolAlias>
-
-    This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
-    you can redistribute it and/or modify it under the terms of the GNU
-    General Public License as published by the Free Software Foundation,
-    either version 3 of the License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (C) <2015> <coolAlias>
+ * 
+ * This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
+ * you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package zeldaswordskills.skills;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import zeldaswordskills.network.server.TargetIdPacket;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import zeldaswordskills.network.server.TargetIdPacket;
 
 /**
  * 
@@ -29,27 +30,27 @@ import cpw.mods.fml.relauncher.SideOnly;
  * such skill should be active at a time.
  *
  */
-public interface ILockOnTarget
-{	
-	/**
-	 * Returns true if player currently targeting an entity
-	 */
-	boolean isLockedOn();
+public interface ILockOnTarget {
 
-	/**
-	 * Returns entity currently locked on to, or null if not locked on
-	 */
-	Entity getCurrentTarget();
+    /**
+     * Returns true if player currently targeting an entity
+     */
+    boolean isLockedOn();
 
-	/**
-	 * Called on the server side when {@link TargetIdPacket} is received
-	 */
-	void setCurrentTarget(EntityPlayer player, Entity target);
+    /**
+     * Returns entity currently locked on to, or null if not locked on
+     */
+    Entity getCurrentTarget();
 
-	/**
-	 * Should find and return the next valid target or null
-	 */
-	@SideOnly(Side.CLIENT)
-	void getNextTarget(EntityPlayer player);
+    /**
+     * Called on the server side when {@link TargetIdPacket} is received
+     */
+    void setCurrentTarget(EntityPlayer player, Entity target);
+
+    /**
+     * Should find and return the next valid target or null
+     */
+    @SideOnly(Side.CLIENT)
+    void getNextTarget(EntityPlayer player);
 
 }

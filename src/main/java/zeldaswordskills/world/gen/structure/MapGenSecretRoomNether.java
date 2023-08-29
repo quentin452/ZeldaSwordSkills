@@ -1,18 +1,18 @@
 /**
-    Copyright (C) <2015> <coolAlias>
-
-    This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
-    you can redistribute it and/or modify it under the terms of the GNU
-    General Public License as published by the Free Software Foundation,
-    either version 3 of the License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (C) <2015> <coolAlias>
+ * 
+ * This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
+ * you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package zeldaswordskills.world.gen.structure;
@@ -24,41 +24,43 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
+
 import zeldaswordskills.ref.Config;
 
-public class MapGenSecretRoomNether extends MapGenSecretRoom
-{
-	@Override
-	public void generate(IChunkProvider provider, World world, Random rand, int chunkX, int chunkZ) {
-		this.worldObj = world;
-		loadOrCreateData(worldObj);
-		NBTTagList roomList = getStructureListFor(chunkX, chunkZ);
-		int posX = (chunkX << 4);
-		int posZ = (chunkZ << 4);
-		for (int i = 0; i < Config.getNetherAttemptsPerChunk(); ++i) {
-			if (rand.nextFloat() < Config.getNetherSecretRoomChance()) {
-				int size = (rand.nextInt(6) + 3);
-				int x = posX + rand.nextInt(16 - size);
-				int y = rand.nextInt((i % 4 == 1 ? 64 : 128)) - rand.nextInt(16);
-				int z = posZ + rand.nextInt(16 - size);
-				RoomSecret room = new RoomSecret(chunkX, chunkZ, size, Blocks.netherrack);
-				if (room.generate(this, world, rand, x, y, z)) {
-					roomList.appendTag(room.writeToNBT());
-					updateChunkStructureMap(roomList, chunkX, chunkZ);
-				}
-			}
-		}
+public class MapGenSecretRoomNether extends MapGenSecretRoom {
 
-		if (roomList.tagCount() > 0) {
-			//LogHelper.log(Level.INFO, "Nether roomList for chunk " + chunkX + "/" + chunkZ + " contains " + roomList.tagCount() + " elements");
-			NBTTagCompound compound = new NBTTagCompound();
-			compound.setTag("roomList", roomList);
-			addRoomTag(compound, chunkX, chunkZ);
-		}
-	}
+    @Override
+    public void generate(IChunkProvider provider, World world, Random rand, int chunkX, int chunkZ) {
+        this.worldObj = world;
+        loadOrCreateData(worldObj);
+        NBTTagList roomList = getStructureListFor(chunkX, chunkZ);
+        int posX = (chunkX << 4);
+        int posZ = (chunkZ << 4);
+        for (int i = 0; i < Config.getNetherAttemptsPerChunk(); ++i) {
+            if (rand.nextFloat() < Config.getNetherSecretRoomChance()) {
+                int size = (rand.nextInt(6) + 3);
+                int x = posX + rand.nextInt(16 - size);
+                int y = rand.nextInt((i % 4 == 1 ? 64 : 128)) - rand.nextInt(16);
+                int z = posZ + rand.nextInt(16 - size);
+                RoomSecret room = new RoomSecret(chunkX, chunkZ, size, Blocks.netherrack);
+                if (room.generate(this, world, rand, x, y, z)) {
+                    roomList.appendTag(room.writeToNBT());
+                    updateChunkStructureMap(roomList, chunkX, chunkZ);
+                }
+            }
+        }
 
-	@Override
-	public String getTagName() {
-		return "zssSecretNether";
-	}
+        if (roomList.tagCount() > 0) {
+            // LogHelper.log(Level.INFO, "Nether roomList for chunk " + chunkX + "/" + chunkZ + " contains " +
+            // roomList.tagCount() + " elements");
+            NBTTagCompound compound = new NBTTagCompound();
+            compound.setTag("roomList", roomList);
+            addRoomTag(compound, chunkX, chunkZ);
+        }
+    }
+
+    @Override
+    public String getTagName() {
+        return "zssSecretNether";
+    }
 }

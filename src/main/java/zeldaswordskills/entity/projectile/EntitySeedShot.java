@@ -1,18 +1,18 @@
 /**
-    Copyright (C) <2018> <coolAlias>
-
-    This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
-    you can redistribute it and/or modify it under the terms of the GNU
-    General Public License as published by the Free Software Foundation,
-    either version 3 of the License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (C) <2018> <coolAlias>
+ * 
+ * This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
+ * you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package zeldaswordskills.entity.projectile;
@@ -29,216 +29,231 @@ import net.minecraft.util.EntityDamageSourceIndirect;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
+
 import zeldaswordskills.ref.Sounds;
 import zeldaswordskills.util.WorldUtils;
 
-public class EntitySeedShot extends EntityMobThrowable
-{
-	/** Watchable object index for critical status, used for damage and possibly trailing particles */
-	protected static final int CRITICAL_INDEX = 22;
+public class EntitySeedShot extends EntityMobThrowable {
 
-	/** Knockback strength, if any */
-	private int knockback = 0;
+    /** Watchable object index for critical status, used for damage and possibly trailing particles */
+    protected static final int CRITICAL_INDEX = 22;
 
-	public EntitySeedShot(World world) {
-		super(world);
-		this.setDamage(this.getBaseDamage());
-		this.setGravityVelocity(0.05F);
-	}
+    /** Knockback strength, if any */
+    private int knockback = 0;
 
-	public EntitySeedShot(World world, EntityLivingBase entity, float velocity) {
-		this(world, entity, velocity, 1, 0F);
-	}
+    public EntitySeedShot(World world) {
+        super(world);
+        this.setDamage(this.getBaseDamage());
+        this.setGravityVelocity(0.05F);
+    }
 
-	public EntitySeedShot(World world, EntityLivingBase shooter, EntityLivingBase target, float velocity, float wobble) {
-		super(world, shooter, target, velocity, wobble);
-		this.setDamage(this.getBaseDamage());
-		this.setGravityVelocity(0.05F);
-	}
+    public EntitySeedShot(World world, EntityLivingBase entity, float velocity) {
+        this(world, entity, velocity, 1, 0F);
+    }
 
-	/**
-	 * @param n the nth shot fired; all shots after the 1st will vary the trajectory
-	 * by the spread given, while the first shot will have a true course
-	 */
-	public EntitySeedShot(World world, EntityLivingBase entity, float velocity, int n, float spread) {
-		super(world, entity);
-		this.setDamage(this.getBaseDamage());
-		this.setGravityVelocity(0.05F);
-		if (n > 1) {
-			setLocationAndAngles(entity.posX, entity.posY + (double) entity.getEyeHeight(), entity.posZ, entity.rotationYaw, entity.rotationPitch);
-			float rotFactor = (float)(n / 2) * spread;
-			rotationYaw += rotFactor * (n % 2 == 0 ? 1 : -1);
-			posX -= (double)(MathHelper.cos(rotationYaw / 180.0F * (float) Math.PI) * 0.16F);
-			posY -= 0.10000000149011612D;
-			posZ -= (double)(MathHelper.sin(rotationYaw / 180.0F * (float) Math.PI) * 0.16F);
-			setPosition(posX, posY, posZ);
-			yOffset = 0.0F;
-			float f = 0.4F;
-			motionX = (double)(-MathHelper.sin(rotationYaw / 180.0F * (float)Math.PI) * MathHelper.cos(rotationPitch / 180.0F * (float) Math.PI) * f);
-			motionZ = (double)(MathHelper.cos(rotationYaw / 180.0F * (float)Math.PI) * MathHelper.cos(rotationPitch / 180.0F * (float) Math.PI) * f);
-			motionY = (double)(-MathHelper.sin((rotationPitch + func_70183_g()) / 180.0F * (float)Math.PI) * f);
-		}
-		setThrowableHeading(motionX, motionY, motionZ, velocity * 1.5F, 1.0F);
-	}
+    public EntitySeedShot(World world, EntityLivingBase shooter, EntityLivingBase target, float velocity,
+        float wobble) {
+        super(world, shooter, target, velocity, wobble);
+        this.setDamage(this.getBaseDamage());
+        this.setGravityVelocity(0.05F);
+    }
 
-	public EntitySeedShot(World world, double x, double y, double z) {
-		super(world, x, y, z);
-		this.setDamage(this.getBaseDamage());
-		this.setGravityVelocity(0.05F);
-	}
+    /**
+     * @param n the nth shot fired; all shots after the 1st will vary the trajectory
+     *          by the spread given, while the first shot will have a true course
+     */
+    public EntitySeedShot(World world, EntityLivingBase entity, float velocity, int n, float spread) {
+        super(world, entity);
+        this.setDamage(this.getBaseDamage());
+        this.setGravityVelocity(0.05F);
+        if (n > 1) {
+            setLocationAndAngles(
+                entity.posX,
+                entity.posY + (double) entity.getEyeHeight(),
+                entity.posZ,
+                entity.rotationYaw,
+                entity.rotationPitch);
+            float rotFactor = (float) (n / 2) * spread;
+            rotationYaw += rotFactor * (n % 2 == 0 ? 1 : -1);
+            posX -= (double) (MathHelper.cos(rotationYaw / 180.0F * (float) Math.PI) * 0.16F);
+            posY -= 0.10000000149011612D;
+            posZ -= (double) (MathHelper.sin(rotationYaw / 180.0F * (float) Math.PI) * 0.16F);
+            setPosition(posX, posY, posZ);
+            yOffset = 0.0F;
+            float f = 0.4F;
+            motionX = (double) (-MathHelper.sin(rotationYaw / 180.0F * (float) Math.PI)
+                * MathHelper.cos(rotationPitch / 180.0F * (float) Math.PI)
+                * f);
+            motionZ = (double) (MathHelper.cos(rotationYaw / 180.0F * (float) Math.PI)
+                * MathHelper.cos(rotationPitch / 180.0F * (float) Math.PI)
+                * f);
+            motionY = (double) (-MathHelper.sin((rotationPitch + func_70183_g()) / 180.0F * (float) Math.PI) * f);
+        }
+        setThrowableHeading(motionX, motionY, motionZ, velocity * 1.5F, 1.0F);
+    }
 
-	@Override
-	public void entityInit() {
-		super.entityInit();
-		dataWatcher.addObject(CRITICAL_INDEX, Byte.valueOf((byte) 0));
-	}
+    public EntitySeedShot(World world, double x, double y, double z) {
+        super(world, x, y, z);
+        this.setDamage(this.getBaseDamage());
+        this.setGravityVelocity(0.05F);
+    }
 
-	/** Whether the seed has a stream of critical hit particles flying behind it */
-	public void setIsCritical(boolean isCrit) {
-		dataWatcher.updateObject(CRITICAL_INDEX, Byte.valueOf((byte)(isCrit ? 1 : 0)));
-	}
+    @Override
+    public void entityInit() {
+        super.entityInit();
+        dataWatcher.addObject(CRITICAL_INDEX, Byte.valueOf((byte) 0));
+    }
 
-	/** Whether the seed has a stream of critical hit particles flying behind it */
-	public boolean getIsCritical() {
-		return dataWatcher.getWatchableObjectByte(CRITICAL_INDEX) > 0;
-	}
+    /** Whether the seed has a stream of critical hit particles flying behind it */
+    public void setIsCritical(boolean isCrit) {
+        dataWatcher.updateObject(CRITICAL_INDEX, Byte.valueOf((byte) (isCrit ? 1 : 0)));
+    }
 
-	/** Return the damage value to set as the default during entity construction */
-	protected float getBaseDamage() {
-		return 1.0F;
-	}
+    /** Whether the seed has a stream of critical hit particles flying behind it */
+    public boolean getIsCritical() {
+        return dataWatcher.getWatchableObjectByte(CRITICAL_INDEX) > 0;
+    }
 
-	/**
-	 * Returns the damage source caused by this seed type
-	 */
-	public DamageSource getDamageSource() {
-		return new EntityDamageSourceIndirect("slingshot", this, this.getThrower()).setProjectile();
-	}
+    /** Return the damage value to set as the default during entity construction */
+    protected float getBaseDamage() {
+        return 1.0F;
+    }
 
-	/** Sets the amount of knockback the arrow applies when it hits a mob. */
-	public void setKnockback(int value) {
-		knockback = value;
-	}
+    /**
+     * Returns the damage source caused by this seed type
+     */
+    public DamageSource getDamageSource() {
+        return new EntityDamageSourceIndirect("slingshot", this, this.getThrower()).setProjectile();
+    }
 
-	/** Returns the amount of knockback the arrow applies when it hits a mob */
-	public int getKnockback() {
-		return knockback;
-	}
+    /** Sets the amount of knockback the arrow applies when it hits a mob. */
+    public void setKnockback(int value) {
+        knockback = value;
+    }
 
-	@Override
-	protected boolean canTriggerWalking() {
-		return false;
-	}
+    /** Returns the amount of knockback the arrow applies when it hits a mob */
+    public int getKnockback() {
+        return knockback;
+    }
 
-	/** The name of the particle to spawn upon impact */
-	protected String getParticleName() {
-		return "crit";
-	}
+    @Override
+    protected boolean canTriggerWalking() {
+        return false;
+    }
 
-	@Override
-	protected void onImpact(MovingObjectPosition mop) {
-		if (mop.entityHit != null) {
-			if (this.isBurning() && !mop.entityHit.isImmuneToFire() && !(mop.entityHit instanceof EntityEnderman)) {
-				mop.entityHit.setFire(5);
-			}
-			if (mop.entityHit.attackEntityFrom(getDamageSource(), calculateDamage())) {
-				playSound(Sounds.DAMAGE_SUCCESSFUL_HIT, 1.0F, 1.2F / (rand.nextFloat() * 0.2F + 0.9F));
-				if (knockback > 0) {
-					float f = MathHelper.sqrt_double(motionX * motionX + motionZ * motionZ);
-					if (f > 0.0F) {
-						double d = (double) knockback * 0.6000000238418579D / (double) f;
-						mop.entityHit.addVelocity(motionX * d, 0.1D, motionZ * d);
-					}
-				}
-				if (mop.entityHit instanceof EntityLivingBase) {
-					this.handlePostDamageEffects((EntityLivingBase) mop.entityHit);
-					EntityLivingBase thrower = this.getThrower();
-					if (thrower != null) {
-						// func_151384_a is the new way Thorns is handled
-						EnchantmentHelper.func_151384_a((EntityLivingBase) mop.entityHit, thrower);
-						EnchantmentHelper.func_151385_b(thrower, mop.entityHit);
-					}
-				}
-				if (!(mop.entityHit instanceof EntityEnderman)) {
-					setDead();
-				}
-			} else {
-				motionX *= -0.10000000149011612D;
-				motionY *= -0.10000000149011612D;
-				motionZ *= -0.10000000149011612D;
-				rotationYaw += 180.0F;
-				prevRotationYaw += 180.0F;
-			}
-		} else {
-			Block block = worldObj.getBlock(mop.blockX, mop.blockY, mop.blockZ);
-			if (block.getMaterial() != Material.air) {
-				block.onEntityCollidedWithBlock(worldObj, mop.blockX, mop.blockY, mop.blockZ, this);
-			}
-			if (this.onImpactBlock(block, mop.blockX, mop.blockY, mop.blockZ)) {
-				playSound(Sounds.DAMAGE_SUCCESSFUL_HIT, 0.3F, 1.2F / (rand.nextFloat() * 0.2F + 0.9F));
-				setDead();
-			}
-		}
-		// Only spawn particles if it hit something for sure
-		if (!this.isEntityAlive() && this.worldObj.isRemote) {
-			this.spawnImpactParticles();
-		}
-	}
+    /** The name of the particle to spawn upon impact */
+    protected String getParticleName() {
+        return "crit";
+    }
 
-	/**
-	 * Called when the seed shot impacts a block after calling Block#onEntityCollidedWithBlock
-	 * @return true if the seed shot should be killed, usually if the {@link Block#getBlocksMovement} returns false
-	 */
-	protected boolean onImpactBlock(Block block, int x, int y, int z) {
-		if (block instanceof BlockButtonWood) {
-			WorldUtils.activateButton(this.worldObj, block, x, y, z);
-			return true;
-		}
-		return !block.getBlocksMovement(this.worldObj, x, y, z);
-	}
+    @Override
+    protected void onImpact(MovingObjectPosition mop) {
+        if (mop.entityHit != null) {
+            if (this.isBurning() && !mop.entityHit.isImmuneToFire() && !(mop.entityHit instanceof EntityEnderman)) {
+                mop.entityHit.setFire(5);
+            }
+            if (mop.entityHit.attackEntityFrom(getDamageSource(), calculateDamage())) {
+                playSound(Sounds.DAMAGE_SUCCESSFUL_HIT, 1.0F, 1.2F / (rand.nextFloat() * 0.2F + 0.9F));
+                if (knockback > 0) {
+                    float f = MathHelper.sqrt_double(motionX * motionX + motionZ * motionZ);
+                    if (f > 0.0F) {
+                        double d = (double) knockback * 0.6000000238418579D / (double) f;
+                        mop.entityHit.addVelocity(motionX * d, 0.1D, motionZ * d);
+                    }
+                }
+                if (mop.entityHit instanceof EntityLivingBase) {
+                    this.handlePostDamageEffects((EntityLivingBase) mop.entityHit);
+                    EntityLivingBase thrower = this.getThrower();
+                    if (thrower != null) {
+                        // func_151384_a is the new way Thorns is handled
+                        EnchantmentHelper.func_151384_a((EntityLivingBase) mop.entityHit, thrower);
+                        EnchantmentHelper.func_151385_b(thrower, mop.entityHit);
+                    }
+                }
+                if (!(mop.entityHit instanceof EntityEnderman)) {
+                    setDead();
+                }
+            } else {
+                motionX *= -0.10000000149011612D;
+                motionY *= -0.10000000149011612D;
+                motionZ *= -0.10000000149011612D;
+                rotationYaw += 180.0F;
+                prevRotationYaw += 180.0F;
+            }
+        } else {
+            Block block = worldObj.getBlock(mop.blockX, mop.blockY, mop.blockZ);
+            if (block.getMaterial() != Material.air) {
+                block.onEntityCollidedWithBlock(worldObj, mop.blockX, mop.blockY, mop.blockZ, this);
+            }
+            if (this.onImpactBlock(block, mop.blockX, mop.blockY, mop.blockZ)) {
+                playSound(Sounds.DAMAGE_SUCCESSFUL_HIT, 0.3F, 1.2F / (rand.nextFloat() * 0.2F + 0.9F));
+                setDead();
+            }
+        }
+        // Only spawn particles if it hit something for sure
+        if (!this.isEntityAlive() && this.worldObj.isRemote) {
+            this.spawnImpactParticles();
+        }
+    }
 
-	/**
-	 * Called when the seed shot has caused damage to the entity hit
-	 */
-	protected void handlePostDamageEffects(EntityLivingBase entity) {}
+    /**
+     * Called when the seed shot impacts a block after calling Block#onEntityCollidedWithBlock
+     * 
+     * @return true if the seed shot should be killed, usually if the {@link Block#getBlocksMovement} returns false
+     */
+    protected boolean onImpactBlock(Block block, int x, int y, int z) {
+        if (block instanceof BlockButtonWood) {
+            WorldUtils.activateButton(this.worldObj, block, x, y, z);
+            return true;
+        }
+        return !block.getBlocksMovement(this.worldObj, x, y, z);
+    }
 
-	/**
-	 * Spawns particles upon impact
-	 */
-	protected void spawnImpactParticles() {
-		String particle = this.getParticleName();
-		for (int i = 0; i < 4 && particle != null; ++i) {
-			this.worldObj.spawnParticle(particle,
-					this.posX - this.motionX * (double) i / 4.0D,
-					this.posY - this.motionY * (double) i / 4.0D,
-					this.posZ - this.motionZ * (double) i / 4.0D,
-					this.motionX, this.motionY + 0.2D, this.motionZ);
-		}
-	}
+    /**
+     * Called when the seed shot has caused damage to the entity hit
+     */
+    protected void handlePostDamageEffects(EntityLivingBase entity) {}
 
-	/**
-	 * Calculates and returns damage based on velocity
-	 */
-	protected float calculateDamage() {
-		float f = MathHelper.sqrt_double(motionX * motionX + motionY * motionY + motionZ * motionZ);
-		float dmg = f * getDamage();
-		if (getIsCritical()) {
-			dmg += (rand.nextFloat() * (getDamage() / 4.0F)) + 0.25F;
-		}
-		return dmg;
-	}
+    /**
+     * Spawns particles upon impact
+     */
+    protected void spawnImpactParticles() {
+        String particle = this.getParticleName();
+        for (int i = 0; i < 4 && particle != null; ++i) {
+            this.worldObj.spawnParticle(
+                particle,
+                this.posX - this.motionX * (double) i / 4.0D,
+                this.posY - this.motionY * (double) i / 4.0D,
+                this.posZ - this.motionZ * (double) i / 4.0D,
+                this.motionX,
+                this.motionY + 0.2D,
+                this.motionZ);
+        }
+    }
 
-	@Override
-	public void writeEntityToNBT(NBTTagCompound compound) {
-		super.writeEntityToNBT(compound);
-		compound.setBoolean("isCritical", getIsCritical());
-		compound.setInteger("knockback", knockback);
-	}
+    /**
+     * Calculates and returns damage based on velocity
+     */
+    protected float calculateDamage() {
+        float f = MathHelper.sqrt_double(motionX * motionX + motionY * motionY + motionZ * motionZ);
+        float dmg = f * getDamage();
+        if (getIsCritical()) {
+            dmg += (rand.nextFloat() * (getDamage() / 4.0F)) + 0.25F;
+        }
+        return dmg;
+    }
 
-	@Override
-	public void readEntityFromNBT(NBTTagCompound compound) {
-		super.readEntityFromNBT(compound);
-		setIsCritical(compound.getBoolean("isCritical"));
-		knockback = compound.getInteger("knockback");
-	}
+    @Override
+    public void writeEntityToNBT(NBTTagCompound compound) {
+        super.writeEntityToNBT(compound);
+        compound.setBoolean("isCritical", getIsCritical());
+        compound.setInteger("knockback", knockback);
+    }
+
+    @Override
+    public void readEntityFromNBT(NBTTagCompound compound) {
+        super.readEntityFromNBT(compound);
+        setIsCritical(compound.getBoolean("isCritical"));
+        knockback = compound.getInteger("knockback");
+    }
 }

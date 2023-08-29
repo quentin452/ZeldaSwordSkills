@@ -1,18 +1,18 @@
 /**
-    Copyright (C) <2018> <coolAlias>
-
-    This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
-    you can redistribute it and/or modify it under the terms of the GNU
-    General Public License as published by the Free Software Foundation,
-    either version 3 of the License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (C) <2018> <coolAlias>
+ * 
+ * This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
+ * you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package zeldaswordskills.skills.sword;
@@ -35,6 +35,9 @@ import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.util.StatCollector;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import zeldaswordskills.api.damage.DamageUtils;
 import zeldaswordskills.api.item.IDashItem;
 import zeldaswordskills.client.ZSSKeyHandler;
@@ -49,8 +52,6 @@ import zeldaswordskills.skills.SkillActive;
 import zeldaswordskills.util.PlayerUtils;
 import zeldaswordskills.util.TargetUtils;
 import zeldaswordskills.util.WorldUtils;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 /**
  * 
@@ -62,249 +63,265 @@ import cpw.mods.fml.relauncher.SideOnly;
  * Knockback: 2 blocks, plus 1 per additional level
  * Exhaustion: Light [1.0F - (level * 0.05F)]
  * Special: Must be at least 2 blocks away from target when skill is activated to
- * 			inflict damage, minus 0.2F per level (down to 1 block at level 5)
+ * inflict damage, minus 0.2F per level (down to 1 block at level 5)
  * 
  */
-public class Dash extends SkillActive
-{
-	/** Player's base movement speed */
-	public static final double BASE_MOVE = 0.10000000149011612D;
+public class Dash extends SkillActive {
 
-	/** True when Slam is used and while the player is in motion towards the target */
-	private boolean isActive = false;
+    /** Player's base movement speed */
+    public static final double BASE_MOVE = 0.10000000149011612D;
 
-	/** Total distance currently traveled */
-	private double distance;
+    /** True when Slam is used and while the player is in motion towards the target */
+    private boolean isActive = false;
 
-	/**
-	 * The dash trajectory is set once when activated, to prevent the vec3 coordinates from
-	 * shrinking as the player nears the target; as a bonus, Dash is no longer 'homing'
-	 */
-	@SideOnly(Side.CLIENT)
-	private Vec3 trajectory;
+    /** Total distance currently traveled */
+    private double distance;
 
-	/** Player's starting position is used to determine actual distance traveled upon impact */
-	private Vec3 initialPosition;
+    /**
+     * The dash trajectory is set once when activated, to prevent the vec3 coordinates from
+     * shrinking as the player nears the target; as a bonus, Dash is no longer 'homing'
+     */
+    @SideOnly(Side.CLIENT)
+    private Vec3 trajectory;
 
-	/** Target acquired from ILockOnTarget skill; set to the entity hit upon impact */
-	private Entity target;
+    /** Player's starting position is used to determine actual distance traveled upon impact */
+    private Vec3 initialPosition;
 
-	/** Impact timer used to make player immune to damage from struck target only, vs. setting hurtResistantTime */
-	private int impactTime;
+    /** Target acquired from ILockOnTarget skill; set to the entity hit upon impact */
+    private Entity target;
 
-	public Dash(String name) {
-		super(name);
-	}
+    /** Impact timer used to make player immune to damage from struck target only, vs. setting hurtResistantTime */
+    private int impactTime;
 
-	private Dash(Dash skill) {
-		super(skill);
-	}
+    public Dash(String name) {
+        super(name);
+    }
 
-	@Override
-	public Dash newInstance() {
-		return new Dash(this);
-	}
+    private Dash(Dash skill) {
+        super(skill);
+    }
 
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void addInformation(List<String> desc, EntityPlayer player) {
-		desc.add(getDamageDisplay(getDamage(), false));
-		desc.add(StatCollector.translateToLocalFormatted(getInfoString("info", 1), 2 + level));
-		desc.add(getRangeDisplay(getRange()));
-		desc.add(StatCollector.translateToLocalFormatted(getInfoString("info", 2),
-				String.format("%.1f", getMinDistance())));
-		desc.add(getExhaustionDisplay(getExhaustion()));
-	}
+    @Override
+    public Dash newInstance() {
+        return new Dash(this);
+    }
 
-	@Override
-	public boolean isActive() {
-		return isActive || impactTime > 0;
-	}
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(List<String> desc, EntityPlayer player) {
+        desc.add(getDamageDisplay(getDamage(), false));
+        desc.add(StatCollector.translateToLocalFormatted(getInfoString("info", 1), 2 + level));
+        desc.add(getRangeDisplay(getRange()));
+        desc.add(
+            StatCollector.translateToLocalFormatted(getInfoString("info", 2), String.format("%.1f", getMinDistance())));
+        desc.add(getExhaustionDisplay(getExhaustion()));
+    }
 
-	@Override
-	protected float getExhaustion() {
-		return 1.0F - (0.05F * level);
-	}
+    @Override
+    public boolean isActive() {
+        return isActive || impactTime > 0;
+    }
 
-	/** Damage is base damage plus one per level */
-	private int getDamage() {
-		return (2 + level);
-	}
+    @Override
+    protected float getExhaustion() {
+        return 1.0F - (0.05F * level);
+    }
 
-	/** Range increases by 1 block per level */
-	private double getRange() {
-		return (3.0D + level);
-	}
+    /** Damage is base damage plus one per level */
+    private int getDamage() {
+        return (2 + level);
+    }
 
-	/** Minimum distance the player must cover before the dash is effective */
-	private double getMinDistance() {
-		return 2.0D - (0.2D * level);
-	}
+    /** Range increases by 1 block per level */
+    private double getRange() {
+        return (3.0D + level);
+    }
 
-	@Override
-	public boolean canUse(EntityPlayer player) {
-		ItemStack stack = (player.getHeldItem() != null ? player.getHeldItem() : null);
-		return super.canUse(player) && !isActive() && (PlayerUtils.isWeapon(stack) || stack.getItem() instanceof IDashItem);
-	}
+    /** Minimum distance the player must cover before the dash is effective */
+    private double getMinDistance() {
+        return 2.0D - (0.2D * level);
+    }
 
-	@Override
-	@SideOnly(Side.CLIENT)
-	public boolean canExecute(EntityPlayer player) {
-		return player.onGround && PlayerUtils.isBlocking(player) && canUse(player);
-	}
+    @Override
+    public boolean canUse(EntityPlayer player) {
+        ItemStack stack = (player.getHeldItem() != null ? player.getHeldItem() : null);
+        return super.canUse(player) && !isActive()
+            && (PlayerUtils.isWeapon(stack) || stack.getItem() instanceof IDashItem);
+    }
 
-	@Override
-	@SideOnly(Side.CLIENT)
-	public boolean isKeyListener(Minecraft mc, KeyBinding key) {
-		return (key == ZSSKeyHandler.keys[ZSSKeyHandler.KEY_ATTACK] || (Config.allowVanillaControls && key == mc.gameSettings.keyBindAttack));
-	}
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean canExecute(EntityPlayer player) {
+        return player.onGround && PlayerUtils.isBlocking(player) && canUse(player);
+    }
 
-	@Override
-	@SideOnly(Side.CLIENT)
-	public boolean keyPressed(Minecraft mc, KeyBinding key, EntityPlayer player) {
-		if (canExecute(player)) {
-			PacketDispatcher.sendToServer(new ActivateSkillPacket(this));
-			return true;
-		}
-		return false;
-	}
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean isKeyListener(Minecraft mc, KeyBinding key) {
+        return (key == ZSSKeyHandler.keys[ZSSKeyHandler.KEY_ATTACK]
+            || (Config.allowVanillaControls && key == mc.gameSettings.keyBindAttack));
+    }
 
-	@Override
-	protected boolean onActivated(World world, EntityPlayer player) {
-		isActive = true;
-		initialPosition = Vec3.createVectorHelper(player.posX, player.posY + player.getEyeHeight() - 0.10000000149011612D, player.posZ);
-		ILockOnTarget skill = ZSSPlayerSkills.get(player).getTargetingSkill();
-		if (skill != null && skill.isLockedOn()) {
-			target = skill.getCurrentTarget();
-		} else {
-			Class<?> targetClass = (Config.targetMobs ? IMob.class : null);
-			target = TargetUtils.acquireLookTarget(player, (int) getRange(), getRange(), true, targetClass);
-		}
-		if (target != null && world.isRemote) {
-			double d0 = (target.posX - player.posX);
-			double d1 = (target.posY + (double)(target.height / 3.0F) - player.posY);
-			double d2 = (target.posZ - player.posZ);
-			trajectory = Vec3.createVectorHelper(d0, d1, d2).normalize();
-		}
-		return isActive();
-	}
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean keyPressed(Minecraft mc, KeyBinding key, EntityPlayer player) {
+        if (canExecute(player)) {
+            PacketDispatcher.sendToServer(new ActivateSkillPacket(this));
+            return true;
+        }
+        return false;
+    }
 
-	@Override
-	protected void onDeactivated(World world, EntityPlayer player) {
-		impactTime = 0; // no longer active, target will be set to null from setNotDashing
-		setNotDashing(); // sets all remaining fields to 0 or null
-	}
+    @Override
+    protected boolean onActivated(World world, EntityPlayer player) {
+        isActive = true;
+        initialPosition = Vec3
+            .createVectorHelper(player.posX, player.posY + player.getEyeHeight() - 0.10000000149011612D, player.posZ);
+        ILockOnTarget skill = ZSSPlayerSkills.get(player)
+            .getTargetingSkill();
+        if (skill != null && skill.isLockedOn()) {
+            target = skill.getCurrentTarget();
+        } else {
+            Class<?> targetClass = (Config.targetMobs ? IMob.class : null);
+            target = TargetUtils.acquireLookTarget(player, (int) getRange(), getRange(), true, targetClass);
+        }
+        if (target != null && world.isRemote) {
+            double d0 = (target.posX - player.posX);
+            double d1 = (target.posY + (double) (target.height / 3.0F) - player.posY);
+            double d2 = (target.posZ - player.posZ);
+            trajectory = Vec3.createVectorHelper(d0, d1, d2)
+                .normalize();
+        }
+        return isActive();
+    }
 
-	@Override
-	public void onUpdate(EntityPlayer player) {
-		if (impactTime > 0) {
-			--impactTime;
-			if (impactTime == 0) {
-				target = null;
-			}
-		}
-		// don't use isActive() method, as that also returns true after impact
-		if (isActive) {
-			// Only check for impact on the client, as the server is not reliable for this step
-			// If a collision is detected, DashImpactPacket is sent to conclude the server-side
-			if (player.worldObj.isRemote) {
-				MovingObjectPosition mop = TargetUtils.checkForImpact(player.worldObj, player, player, 0.5D, false);
-				if (mop != null) {
-					PacketDispatcher.sendToServer(new DashImpactPacket(player, mop));
-					// Player cannot attack directly after impacting something
-					player.attackTime = (player.capabilities.isCreativeMode ? 0 : 10 - level);
-					impactTime = 5;
-					if (mop.typeOfHit == MovingObjectType.ENTITY) {
-						target = mop.entityHit;
-					}
-					double d = Math.sqrt((player.motionX * player.motionX) + (player.motionZ * player.motionZ));
-					player.setVelocity(-player.motionX * d, 0.15D * d, -player.motionZ * d);
-					trajectory = null; // set to null so player doesn't keep moving forward
-					setNotDashing();
-				}
-			}
-			// increment distance AFTER update, otherwise Dash thinks it can damage entities right in front of player
-			++distance;
-			if (distance > (getRange() + 1.0D) || !(target instanceof EntityLivingBase)) {
-				setNotDashing();
-			}
-		}
-	}
+    @Override
+    protected void onDeactivated(World world, EntityPlayer player) {
+        impactTime = 0; // no longer active, target will be set to null from setNotDashing
+        setNotDashing(); // sets all remaining fields to 0 or null
+    }
 
-	/**
-	 * Called on the server from {@link DashImpactPacket} to process the impact data from the client
-	 * @param player	Player's motionX and motionZ have been set by the packet, so the values may be used
-	 * @param mop	Null assumes a block was hit (none of the block data is needed, so it is not sent),
-	 * 				or a valid MovingObjectPosition for the entity hit
-	 */
-	public void onImpact(World world, EntityPlayer player, MovingObjectPosition mop) {
-		if (mop != null && mop.typeOfHit == MovingObjectType.ENTITY) {
-			target = mop.entityHit;
-			double dist = target.getDistance(initialPosition.xCoord, initialPosition.yCoord, initialPosition.zCoord);
-			// Subtract half the width for each entity to account for their bounding box size
-			dist -= (target.width / 2.0F) + (player.width / 2.0F);
-			// Base player speed is 0.1D; heavy boots = 0.04D, pegasus = 0.13D
-			double speed = player.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.movementSpeed).getAttributeValue();
-			double sf = (1.0D + (speed - BASE_MOVE)); // speed factor
-			if (speed > 0.075D && dist > getMinDistance() && player.getDistanceSqToEntity(target) < 6.0D) {
-				float dmg = (float) getDamage() + (float)((dist / 2.0D) - 2.0D);
-				impactTime = 5; // time player will be immune to damage from the target entity
-				target.attackEntityFrom(DamageUtils.causeNonSwordDamage(player), (float)(dmg * sf * sf));
-				double resist = 1.0D;
-				if (target instanceof EntityLivingBase) {
-					resist -= ((EntityLivingBase) target).getEntityAttribute(SharedMonsterAttributes.knockbackResistance).getAttributeValue();
-				}
-				double k = sf * resist * (distance / 3.0F) * 0.6000000238418579D;
-				target.addVelocity(player.motionX * k * (0.2D + (0.1D * level)), 0.1D + k * (level * 0.025D), player.motionZ * k * (0.2D + (0.1D * level)));
-				// if player, send velocity update to client
-				if (target instanceof EntityPlayerMP && !player.worldObj.isRemote) {
-					((EntityPlayerMP) target).playerNetServerHandler.sendPacket(new S12PacketEntityVelocity(target));
-				}
-			}
-		}
-		WorldUtils.playSoundAtEntity(player, Sounds.SLAM, 0.4F, 0.5F);
-		setNotDashing();
-	}
+    @Override
+    public void onUpdate(EntityPlayer player) {
+        if (impactTime > 0) {
+            --impactTime;
+            if (impactTime == 0) {
+                target = null;
+            }
+        }
+        // don't use isActive() method, as that also returns true after impact
+        if (isActive) {
+            // Only check for impact on the client, as the server is not reliable for this step
+            // If a collision is detected, DashImpactPacket is sent to conclude the server-side
+            if (player.worldObj.isRemote) {
+                MovingObjectPosition mop = TargetUtils.checkForImpact(player.worldObj, player, player, 0.5D, false);
+                if (mop != null) {
+                    PacketDispatcher.sendToServer(new DashImpactPacket(player, mop));
+                    // Player cannot attack directly after impacting something
+                    player.attackTime = (player.capabilities.isCreativeMode ? 0 : 10 - level);
+                    impactTime = 5;
+                    if (mop.typeOfHit == MovingObjectType.ENTITY) {
+                        target = mop.entityHit;
+                    }
+                    double d = Math.sqrt((player.motionX * player.motionX) + (player.motionZ * player.motionZ));
+                    player.setVelocity(-player.motionX * d, 0.15D * d, -player.motionZ * d);
+                    trajectory = null; // set to null so player doesn't keep moving forward
+                    setNotDashing();
+                }
+            }
+            // increment distance AFTER update, otherwise Dash thinks it can damage entities right in front of player
+            ++distance;
+            if (distance > (getRange() + 1.0D) || !(target instanceof EntityLivingBase)) {
+                setNotDashing();
+            }
+        }
+    }
 
-	@Override
-	@SideOnly(Side.CLIENT)
-	public boolean isAnimating() {
-		return isActive; // don't continue render tick updates after impact
-	}
+    /**
+     * Called on the server from {@link DashImpactPacket} to process the impact data from the client
+     * 
+     * @param player Player's motionX and motionZ have been set by the packet, so the values may be used
+     * @param mop    Null assumes a block was hit (none of the block data is needed, so it is not sent),
+     *               or a valid MovingObjectPosition for the entity hit
+     */
+    public void onImpact(World world, EntityPlayer player, MovingObjectPosition mop) {
+        if (mop != null && mop.typeOfHit == MovingObjectType.ENTITY) {
+            target = mop.entityHit;
+            double dist = target.getDistance(initialPosition.xCoord, initialPosition.yCoord, initialPosition.zCoord);
+            // Subtract half the width for each entity to account for their bounding box size
+            dist -= (target.width / 2.0F) + (player.width / 2.0F);
+            // Base player speed is 0.1D; heavy boots = 0.04D, pegasus = 0.13D
+            double speed = player.getAttributeMap()
+                .getAttributeInstance(SharedMonsterAttributes.movementSpeed)
+                .getAttributeValue();
+            double sf = (1.0D + (speed - BASE_MOVE)); // speed factor
+            if (speed > 0.075D && dist > getMinDistance() && player.getDistanceSqToEntity(target) < 6.0D) {
+                float dmg = (float) getDamage() + (float) ((dist / 2.0D) - 2.0D);
+                impactTime = 5; // time player will be immune to damage from the target entity
+                target.attackEntityFrom(DamageUtils.causeNonSwordDamage(player), (float) (dmg * sf * sf));
+                double resist = 1.0D;
+                if (target instanceof EntityLivingBase) {
+                    resist -= ((EntityLivingBase) target)
+                        .getEntityAttribute(SharedMonsterAttributes.knockbackResistance)
+                        .getAttributeValue();
+                }
+                double k = sf * resist * (distance / 3.0F) * 0.6000000238418579D;
+                target.addVelocity(
+                    player.motionX * k * (0.2D + (0.1D * level)),
+                    0.1D + k * (level * 0.025D),
+                    player.motionZ * k * (0.2D + (0.1D * level)));
+                // if player, send velocity update to client
+                if (target instanceof EntityPlayerMP && !player.worldObj.isRemote) {
+                    ((EntityPlayerMP) target).playerNetServerHandler.sendPacket(new S12PacketEntityVelocity(target));
+                }
+            }
+        }
+        WorldUtils.playSoundAtEntity(player, Sounds.SLAM, 0.4F, 0.5F);
+        setNotDashing();
+    }
 
-	@Override
-	@SideOnly(Side.CLIENT)
-	public boolean onRenderTick(EntityPlayer player, float partialTickTime) {
-		if (target instanceof EntityLivingBase && trajectory != null) {
-			double speed = player.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.movementSpeed).getAttributeValue() - BASE_MOVE;
-			double dfactor = (1.0D + (speed) + (speed * (1.0D - ((getRange() - distance) / getRange()))));
-			player.motionX = trajectory.xCoord * dfactor * dfactor;
-			player.motionZ = trajectory.zCoord * dfactor * dfactor;
-		}
-		return false; // this skill doesn't need to control the camera
-	}
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean isAnimating() {
+        return isActive; // don't continue render tick updates after impact
+    }
 
-	@Override
-	public boolean onBeingAttacked(EntityPlayer player, DamageSource source) {
-		if (impactTime > 0 && source.getEntity() == target) {
-			return true;
-		} else if (source.damageType.equals("mob") && source.getEntity() != null && player.getDistanceSqToEntity(source.getEntity()) < 6.0D) {
-			return true; // stop stupid zombies from hitting player right before impact
-		}
-		return false;
-	}
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean onRenderTick(EntityPlayer player, float partialTickTime) {
+        if (target instanceof EntityLivingBase && trajectory != null) {
+            double speed = player.getAttributeMap()
+                .getAttributeInstance(SharedMonsterAttributes.movementSpeed)
+                .getAttributeValue() - BASE_MOVE;
+            double dfactor = (1.0D + (speed) + (speed * (1.0D - ((getRange() - distance) / getRange()))));
+            player.motionX = trajectory.xCoord * dfactor * dfactor;
+            player.motionZ = trajectory.zCoord * dfactor * dfactor;
+        }
+        return false; // this skill doesn't need to control the camera
+    }
 
-	/**
-	 * After calling this method, {@link #isAnimating()} will always return false;
-	 * {@link #isActive()} will return false if no entity was impacted, otherwise it
-	 * will still be true for {@link #impactTime} ticks to prevent damage from the {@link #target}. 
-	 */
-	private void setNotDashing() {
-		isActive = false;
-		distance = 0.0D;
-		initialPosition = null;
-		if (!isActive()) {
-			target = null;
-		}
-	}
+    @Override
+    public boolean onBeingAttacked(EntityPlayer player, DamageSource source) {
+        if (impactTime > 0 && source.getEntity() == target) {
+            return true;
+        } else if (source.damageType.equals("mob") && source.getEntity() != null
+            && player.getDistanceSqToEntity(source.getEntity()) < 6.0D) {
+                return true; // stop stupid zombies from hitting player right before impact
+            }
+        return false;
+    }
+
+    /**
+     * After calling this method, {@link #isAnimating()} will always return false;
+     * {@link #isActive()} will return false if no entity was impacted, otherwise it
+     * will still be true for {@link #impactTime} ticks to prevent damage from the {@link #target}.
+     */
+    private void setNotDashing() {
+        isActive = false;
+        distance = 0.0D;
+        initialPosition = null;
+        if (!isActive()) {
+            target = null;
+        }
+    }
 }

@@ -1,18 +1,18 @@
 /**
-    Copyright (C) <2018> <coolAlias>
-
-    This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
-    you can redistribute it and/or modify it under the terms of the GNU
-    General Public License as published by the Free Software Foundation,
-    either version 3 of the License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (C) <2018> <coolAlias>
+ * 
+ * This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
+ * you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package zeldaswordskills.util;
@@ -33,6 +33,7 @@ import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.config.Configuration;
+
 import zeldaswordskills.ZSSMain;
 import zeldaswordskills.api.block.IHookable.HookshotType;
 import zeldaswordskills.api.block.IWhipBlock.WhipType;
@@ -59,258 +60,280 @@ import zeldaswordskills.world.crisis.SwampBattle;
  * Defined types for Boss Rooms, Big Keys and other things
  * 
  */
-public enum BossType
-{
-	HELL("temple_fire", FireBattle.class, EntityBlaze.class, 7, ZeldaSongs.songWarpFire, "hell"),
-	DESERT("temple_desert", DesertBattle.class, EntityBlaze.class, 1, ZeldaSongs.songWarpSpirit, "desert", "deserthills"),
-	FOREST("temple_forest", ForestBattle.class, EntityCaveSpider.class, 4, ZeldaSongs.songWarpForest, "forest", "foresthills"),
-	TAIGA("temple_ice", BossBattle.class, EntitySkeleton.class, 5, ZeldaSongs.songWarpLight, "coldtaiga", "coldtaigahills", "iceplains"),
-	OCEAN("temple_water", OceanBattle.class, EntityOctorokPink.class, 1, ZeldaSongs.songWarpWater, "ocean", "frozenocean", "deepocean"),
-	SWAMP("temple_wind", SwampBattle.class, EntityWizzrobeGrand.class, 4, ZeldaSongs.songWarpShadow, "swampland"),
-	MOUNTAIN("temple_earth", EarthBattle.class, EntityBlackKnight.class, 3, ZeldaSongs.songWarpOrder, "extremehills", "extremehillsedge");
-	//END("temple_shadow", EntityEnderman.class, 7, "sky");
-	// TODO negate Enderman teleport ability when spawned as a boss?, perhaps by adding a new Debuff
-	// need to set their target and aggravation state so they attack automatically
+public enum BossType {
 
-	/** Name that can be used to retrieve the BossType from {@link #getBossType(String)} */
-	private final String unlocalizedName;
+    HELL("temple_fire", FireBattle.class, EntityBlaze.class, 7, ZeldaSongs.songWarpFire, "hell"),
+    DESERT("temple_desert", DesertBattle.class, EntityBlaze.class, 1, ZeldaSongs.songWarpSpirit, "desert",
+        "deserthills"),
+    FOREST("temple_forest", ForestBattle.class, EntityCaveSpider.class, 4, ZeldaSongs.songWarpForest, "forest",
+        "foresthills"),
+    TAIGA("temple_ice", BossBattle.class, EntitySkeleton.class, 5, ZeldaSongs.songWarpLight, "coldtaiga",
+        "coldtaigahills", "iceplains"),
+    OCEAN("temple_water", OceanBattle.class, EntityOctorokPink.class, 1, ZeldaSongs.songWarpWater, "ocean",
+        "frozenocean", "deepocean"),
+    SWAMP("temple_wind", SwampBattle.class, EntityWizzrobeGrand.class, 4, ZeldaSongs.songWarpShadow, "swampland"),
+    MOUNTAIN("temple_earth", EarthBattle.class, EntityBlackKnight.class, 3, ZeldaSongs.songWarpOrder, "extremehills",
+        "extremehillsedge");
+    // END("temple_shadow", EntityEnderman.class, 7, "sky");
+    // TODO negate Enderman teleport ability when spawned as a boss?, perhaps by adding a new Debuff
+    // need to set their target and aggravation state so they attack automatically
 
-	/** Default biomes in which this dungeon can generate */
-	private final String[] defaultBiomes;
+    /** Name that can be used to retrieve the BossType from {@link #getBossType(String)} */
+    private final String unlocalizedName;
 
-	/** The class that will be used during the dungeon's Boss Battle */
-	private final Class<? extends BossBattle> bossBattle;
+    /** Default biomes in which this dungeon can generate */
+    private final String[] defaultBiomes;
 
-	/** The mob class to spawn when a player enters the boss dungeon */
-	private final Class<? extends IMob> bossMob;
+    /** The class that will be used during the dungeon's Boss Battle */
+    private final Class<? extends BossBattle> bossBattle;
 
-	/** Currently stores metadata value used by SecretStone for returning appropriate Block */
-	public final int metadata;
+    /** The mob class to spawn when a player enters the boss dungeon */
+    private final Class<? extends IMob> bossMob;
 
-	/** Song that may be used to warp to this dungeon, if any */
-	public final AbstractZeldaSong warpSong;
+    /** Currently stores metadata value used by SecretStone for returning appropriate Block */
+    public final int metadata;
 
-	/** Unlocalized name to BossType mapping */
-	private static final Map<String, BossType> stringToTypeMap = new HashMap<String, BossType>();
+    /** Song that may be used to warp to this dungeon, if any */
+    public final AbstractZeldaSong warpSong;
 
-	/** Mapping of biome names to boss types */
-	private static final Map<String, BossType> bossBiomeList = new HashMap<String, BossType>();
+    /** Unlocalized name to BossType mapping */
+    private static final Map<String, BossType> stringToTypeMap = new HashMap<String, BossType>();
 
-	private BossType(String name, Class<? extends BossBattle> bossBattle, Class<? extends IMob> bossMob, int meta, AbstractZeldaSong warpSong, String... defaultBiomes) {
-		this.unlocalizedName = name;
-		this.defaultBiomes = defaultBiomes;
-		this.bossBattle = bossBattle;
-		this.bossMob = bossMob;
-		this.metadata = meta;
-		this.warpSong = warpSong;
-	}
+    /** Mapping of biome names to boss types */
+    private static final Map<String, BossType> bossBiomeList = new HashMap<String, BossType>();
 
-	/** Name that can be used to retrieve the BossType from {@link #getBossType(String)} */
-	public String getUnlocalizedName() {
-		return unlocalizedName;
-	}
+    private BossType(String name, Class<? extends BossBattle> bossBattle, Class<? extends IMob> bossMob, int meta,
+        AbstractZeldaSong warpSong, String... defaultBiomes) {
+        this.unlocalizedName = name;
+        this.defaultBiomes = defaultBiomes;
+        this.bossBattle = bossBattle;
+        this.bossMob = bossMob;
+        this.metadata = meta;
+        this.warpSong = warpSong;
+    }
 
-	/** Returns the translated name */
-	public String getDisplayName() {
-		return StatCollector.translateToLocal("dungeon.zss." + unlocalizedName + ".name");
-	}
+    /** Name that can be used to retrieve the BossType from {@link #getBossType(String)} */
+    public String getUnlocalizedName() {
+        return unlocalizedName;
+    }
 
-	@Override
-	public String toString() {
-		return ("Name: " + getUnlocalizedName() + " BossMob: " + (bossMob != null ? bossMob.toString() : "NULL") + " Block: " + metadata);
-	}
+    /** Returns the translated name */
+    public String getDisplayName() {
+        return StatCollector.translateToLocal("dungeon.zss." + unlocalizedName + ".name");
+    }
 
-	/**
-	 * Loads biome lists from config file during post initialization
-	 */
-	public static void postInit(Configuration config) {
-		for (BossType type : BossType.values()) {
-			addBiomes(type, config.get("Dungeon Generation", String.format("[Boss Dungeon] List of biomes in which %ss can generate", type.getDisplayName()), type.defaultBiomes).getStringList());
-		}
-	}
+    @Override
+    public String toString() {
+        return ("Name: " + getUnlocalizedName()
+            + " BossMob: "
+            + (bossMob != null ? bossMob.toString() : "NULL")
+            + " Block: "
+            + metadata);
+    }
 
-	/**
-	 * Adds each biome name to the mapping for this BossType
-	 */
-	public static void addBiomes(BossType type, String[] biomeNames) {
-		for (String biome : biomeNames) {
-			if (biome.length() < 1) {
-				continue;
-			}
-			biome = biome.toLowerCase().replace(" ", "");
-			if (!BiomeType.isRealBiome(biome)) {
-				ZSSMain.logger.warn(String.format("%s is not a recognized biome! This entry will be ignored for BossType %s", biome, type.getDisplayName()));
-			} else if (bossBiomeList.containsKey(biome)) {
-				ZSSMain.logger.warn(String.format("Error while adding %s for %s: biome already mapped to %s", biome, type.getDisplayName(), bossBiomeList.get(biome).getDisplayName()));
-			} else {
-				bossBiomeList.put(biome, type);
-			}
-		}
-	}
+    /**
+     * Loads biome lists from config file during post initialization
+     */
+    public static void postInit(Configuration config) {
+        for (BossType type : BossType.values()) {
+            addBiomes(
+                type,
+                config
+                    .get(
+                        "Dungeon Generation",
+                        String.format("[Boss Dungeon] List of biomes in which %ss can generate", type.getDisplayName()),
+                        type.defaultBiomes)
+                    .getStringList());
+        }
+    }
 
-	/**
-	 * Get a BossType by name; will return null if it the name doesn't match any BossType's unlocalizedName
-	 */
-	public static BossType getBossType(String name) {
-		if (stringToTypeMap.isEmpty()) {
-			for (BossType type : BossType.values()) {
-				stringToTypeMap.put(type.unlocalizedName, type);
-			}
-		}
-		return stringToTypeMap.get(name.toLowerCase());
-	}
+    /**
+     * Adds each biome name to the mapping for this BossType
+     */
+    public static void addBiomes(BossType type, String[] biomeNames) {
+        for (String biome : biomeNames) {
+            if (biome.length() < 1) {
+                continue;
+            }
+            biome = biome.toLowerCase()
+                .replace(" ", "");
+            if (!BiomeType.isRealBiome(biome)) {
+                ZSSMain.logger.warn(
+                    String.format(
+                        "%s is not a recognized biome! This entry will be ignored for BossType %s",
+                        biome,
+                        type.getDisplayName()));
+            } else if (bossBiomeList.containsKey(biome)) {
+                ZSSMain.logger.warn(
+                    String.format(
+                        "Error while adding %s for %s: biome already mapped to %s",
+                        biome,
+                        type.getDisplayName(),
+                        bossBiomeList.get(biome)
+                            .getDisplayName()));
+            } else {
+                bossBiomeList.put(biome, type);
+            }
+        }
+    }
 
-	/**
-	 * Returns the BossType for the biome at x/z, or null if no BossType exists for that biome
-	 */
-	public static BossType getBossType(World world, int x, int z) {
-		BiomeGenBase biome = world.getBiomeGenForCoords(x, z);
-		if (biome == null) {
-			ZSSMain.logger.warn(String.format("Null biome at %d/%d while getting Boss Type", x, z));
-			return null;
-		}
-		if (Config.areBossDungeonsRandom()) {
-			int i = world.rand.nextInt(BossType.values().length);
-			return BossType.values()[i];
-		}
-		return bossBiomeList.get(biome.biomeName.toLowerCase().replace(" ", ""));
-	}
+    /**
+     * Get a BossType by name; will return null if it the name doesn't match any BossType's unlocalizedName
+     */
+    public static BossType getBossType(String name) {
+        if (stringToTypeMap.isEmpty()) {
+            for (BossType type : BossType.values()) {
+                stringToTypeMap.put(type.unlocalizedName, type);
+            }
+        }
+        return stringToTypeMap.get(name.toLowerCase());
+    }
 
-	/**
-	 * Returns the specific ItemStack that is always found in this Boss Type's chests, if any
-	 */
-	public ItemStack getSpecialItem() {
-		switch(this) {
-		case DESERT: return new ItemStack(ZSSItems.pendant, 1, PendantType.COURAGE.ordinal());
-		case MOUNTAIN: return new ItemStack(ZSSItems.pendant, 1, PendantType.POWER.ordinal());
-		case OCEAN: return new ItemStack(ZSSItems.pendant, 1, PendantType.WISDOM.ordinal());
-		default: return null;
-		}
-	}
+    /**
+     * Returns the BossType for the biome at x/z, or null if no BossType exists for that biome
+     */
+    public static BossType getBossType(World world, int x, int z) {
+        BiomeGenBase biome = world.getBiomeGenForCoords(x, z);
+        if (biome == null) {
+            ZSSMain.logger.warn(String.format("Null biome at %d/%d while getting Boss Type", x, z));
+            return null;
+        }
+        if (Config.areBossDungeonsRandom()) {
+            int i = world.rand.nextInt(BossType.values().length);
+            return BossType.values()[i];
+        }
+        return bossBiomeList.get(
+            biome.biomeName.toLowerCase()
+                .replace(" ", ""));
+    }
 
-	/**
-	 * Returns a random special item fitting for the boss type, or null if none are available
-	 */
-	public ItemStack getRandomSpecialItem(Random rand) {
-		ItemStack[] items = null;
-		switch(this) {
-		case DESERT: items = desertItems; break;
-		case FOREST: items = forestItems; break;
-		case HELL: items = netherItems; break;
-		case MOUNTAIN: items = mountainItems; break;
-		case OCEAN: items = oceanItems; break;
-		case SWAMP: items = swampItems; break;
-		case TAIGA: items = taigaItems; break;
-		default:
-		}
-		if (items != null && items.length > 0) {
-			return items[rand.nextInt(items.length)];
-		}
-		return null;
-	}
+    /**
+     * Returns the specific ItemStack that is always found in this Boss Type's chests, if any
+     */
+    public ItemStack getSpecialItem() {
+        switch (this) {
+            case DESERT:
+                return new ItemStack(ZSSItems.pendant, 1, PendantType.COURAGE.ordinal());
+            case MOUNTAIN:
+                return new ItemStack(ZSSItems.pendant, 1, PendantType.POWER.ordinal());
+            case OCEAN:
+                return new ItemStack(ZSSItems.pendant, 1, PendantType.WISDOM.ordinal());
+            default:
+                return null;
+        }
+    }
 
-	// Possible special items that may generate in this boss type's chests
-	private static final ItemStack[] desertItems = {
-		new ItemStack(ZSSItems.boomerang),
-		new ItemStack(ZSSItems.bootsHover),
-		new ItemStack(ZSSItems.hookshotAddon, 1, AddonType.EXTENSION.ordinal()),
-		new ItemStack(ZSSItems.maskGibdo),
-		new ItemStack(ZSSItems.rodFire)
-	};
-	private static final ItemStack[] forestItems = {
-		new ItemStack(ZSSItems.dekuLeaf),
-		new ItemStack(ZSSItems.heroBow),
-		new ItemStack(ZSSItems.hookshot, 1, HookshotType.WOOD_SHOT.ordinal()),
-		new ItemStack(ZSSItems.maskHawkeye),
-		new ItemStack(ZSSItems.whip, 1, WhipType.WHIP_SHORT.ordinal())
-	};
-	private static final ItemStack[] mountainItems = {
-		new ItemStack(ZSSItems.bootsPegasus),
-		new ItemStack(ZSSItems.hammer),
-		new ItemStack(ZSSItems.maskBlast),
-		new ItemStack(ZSSItems.hookshotAddon, 1, AddonType.STONECLAW.ordinal()),
-		new ItemStack(ZSSItems.swordBroken, 1, Item.getIdFromItem(ZSSItems.swordGiant))
-	};
-	private static final ItemStack[] netherItems = {
-		new ItemStack(ZSSItems.keySkeleton),
-		new ItemStack(ZSSItems.heroBow),
-		new ItemStack(ZSSItems.hookshotAddon, 1, AddonType.MULTI.ordinal()),
-		new ItemStack(ZSSItems.maskMajora),
-		new ItemStack(ZSSItems.tunicGoronChest)
-	};
-	private static final ItemStack[] oceanItems = {
-		new ItemStack(ZSSItems.bootsHeavy),
-		new ItemStack(ZSSItems.maskStone),
-		new ItemStack(ZSSItems.slingshot),
-		new ItemStack(ZSSItems.tunicZoraChest)
-	};
-	private static final ItemStack[] swampItems = {
-		new ItemStack(ZSSItems.bootsRubber),
-		new ItemStack(ZSSItems.hammer),
-		new ItemStack(ZSSItems.heroBow),
-		new ItemStack(ZSSItems.maskHawkeye),
-		new ItemStack(ZSSItems.rodTornado)
-	};
-	private static final ItemStack[] taigaItems = {
-		new ItemStack(ZSSItems.boomerang),
-		new ItemStack(ZSSItems.bootsHover),
-		new ItemStack(ZSSItems.gauntletsSilver),
-		new ItemStack(ZSSItems.maskGiants),
-		new ItemStack(ZSSItems.rodIce)
-	};
+    /**
+     * Returns a random special item fitting for the boss type, or null if none are available
+     */
+    public ItemStack getRandomSpecialItem(Random rand) {
+        ItemStack[] items = null;
+        switch (this) {
+            case DESERT:
+                items = desertItems;
+                break;
+            case FOREST:
+                items = forestItems;
+                break;
+            case HELL:
+                items = netherItems;
+                break;
+            case MOUNTAIN:
+                items = mountainItems;
+                break;
+            case OCEAN:
+                items = oceanItems;
+                break;
+            case SWAMP:
+                items = swampItems;
+                break;
+            case TAIGA:
+                items = taigaItems;
+                break;
+            default:
+        }
+        if (items != null && items.length > 0) {
+            return items[rand.nextInt(items.length)];
+        }
+        return null;
+    }
 
-	/**
-	 * Returns a new instance of the appropriate BossBattle crisis event
-	 */
-	public final BossBattle getBossBattle(TileEntityDungeonCore core) {
-		if (bossBattle == null) {
-			ZSSMain.logger.error("Error retrieving boss battle event for " + toString());
-			return null;
-		}
-		BossBattle battle = null;
-		try {
-			battle = (BossBattle) bossBattle.getConstructor(TileEntityDungeonCore.class).newInstance(core);
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		}
-		return battle;
-	}
+    // Possible special items that may generate in this boss type's chests
+    private static final ItemStack[] desertItems = { new ItemStack(ZSSItems.boomerang),
+        new ItemStack(ZSSItems.bootsHover), new ItemStack(ZSSItems.hookshotAddon, 1, AddonType.EXTENSION.ordinal()),
+        new ItemStack(ZSSItems.maskGibdo), new ItemStack(ZSSItems.rodFire) };
+    private static final ItemStack[] forestItems = { new ItemStack(ZSSItems.dekuLeaf), new ItemStack(ZSSItems.heroBow),
+        new ItemStack(ZSSItems.hookshot, 1, HookshotType.WOOD_SHOT.ordinal()), new ItemStack(ZSSItems.maskHawkeye),
+        new ItemStack(ZSSItems.whip, 1, WhipType.WHIP_SHORT.ordinal()) };
+    private static final ItemStack[] mountainItems = { new ItemStack(ZSSItems.bootsPegasus),
+        new ItemStack(ZSSItems.hammer), new ItemStack(ZSSItems.maskBlast),
+        new ItemStack(ZSSItems.hookshotAddon, 1, AddonType.STONECLAW.ordinal()),
+        new ItemStack(ZSSItems.swordBroken, 1, Item.getIdFromItem(ZSSItems.swordGiant)) };
+    private static final ItemStack[] netherItems = { new ItemStack(ZSSItems.keySkeleton),
+        new ItemStack(ZSSItems.heroBow), new ItemStack(ZSSItems.hookshotAddon, 1, AddonType.MULTI.ordinal()),
+        new ItemStack(ZSSItems.maskMajora), new ItemStack(ZSSItems.tunicGoronChest) };
+    private static final ItemStack[] oceanItems = { new ItemStack(ZSSItems.bootsHeavy),
+        new ItemStack(ZSSItems.maskStone), new ItemStack(ZSSItems.slingshot), new ItemStack(ZSSItems.tunicZoraChest) };
+    private static final ItemStack[] swampItems = { new ItemStack(ZSSItems.bootsRubber), new ItemStack(ZSSItems.hammer),
+        new ItemStack(ZSSItems.heroBow), new ItemStack(ZSSItems.maskHawkeye), new ItemStack(ZSSItems.rodTornado) };
+    private static final ItemStack[] taigaItems = { new ItemStack(ZSSItems.boomerang),
+        new ItemStack(ZSSItems.bootsHover), new ItemStack(ZSSItems.gauntletsSilver), new ItemStack(ZSSItems.maskGiants),
+        new ItemStack(ZSSItems.rodIce) };
 
-	/**
-	 * Returns a new instance of the appropriate mob for this type, or null
-	 * Note that no position or other information has been set, the default constructor(World) is used
-	 */
-	public final Entity getNewMob(World world) {
-		if (bossMob == null) {
-			ZSSMain.logger.error("Error retrieving boss mob for " + toString());
-			return null;
-		}
-		Entity entity = null;
-		try {
-			entity = (Entity) bossMob.getConstructor(World.class).newInstance(world);
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		}
-		return entity;
-	}
+    /**
+     * Returns a new instance of the appropriate BossBattle crisis event
+     */
+    public final BossBattle getBossBattle(TileEntityDungeonCore core) {
+        if (bossBattle == null) {
+            ZSSMain.logger.error("Error retrieving boss battle event for " + toString());
+            return null;
+        }
+        BossBattle battle = null;
+        try {
+            battle = (BossBattle) bossBattle.getConstructor(TileEntityDungeonCore.class)
+                .newInstance(core);
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
+        return battle;
+    }
+
+    /**
+     * Returns a new instance of the appropriate mob for this type, or null
+     * Note that no position or other information has been set, the default constructor(World) is used
+     */
+    public final Entity getNewMob(World world) {
+        if (bossMob == null) {
+            ZSSMain.logger.error("Error retrieving boss mob for " + toString());
+            return null;
+        }
+        Entity entity = null;
+        try {
+            entity = (Entity) bossMob.getConstructor(World.class)
+                .newInstance(world);
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
+        return entity;
+    }
 }

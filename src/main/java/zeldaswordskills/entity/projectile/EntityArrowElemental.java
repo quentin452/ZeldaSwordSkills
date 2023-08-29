@@ -1,18 +1,18 @@
 /**
-    Copyright (C) <2018> <coolAlias>
-
-    This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
-    you can redistribute it and/or modify it under the terms of the GNU
-    General Public License as published by the Free Software Foundation,
-    either version 3 of the License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (C) <2018> <coolAlias>
+ * 
+ * This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
+ * you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package zeldaswordskills.entity.projectile;
@@ -25,6 +25,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.ChunkPosition;
 import net.minecraft.world.World;
+
 import zeldaswordskills.util.WorldUtils;
 
 /**
@@ -33,65 +34,68 @@ import zeldaswordskills.util.WorldUtils;
  * Base class for arrows that have some special AoE effect upon impacting blocks.
  *
  */
-public abstract class EntityArrowElemental extends EntityArrowCustom
-{
-	public EntityArrowElemental(World world) {
-		super(world);
-	}
+public abstract class EntityArrowElemental extends EntityArrowCustom {
 
-	public EntityArrowElemental(World world, double x, double y, double z) {
-		super(world, x, y, z);
-	}
+    public EntityArrowElemental(World world) {
+        super(world);
+    }
 
-	public EntityArrowElemental(World world, EntityLivingBase shooter, float velocity) {
-		super(world, shooter, velocity);
-	}
+    public EntityArrowElemental(World world, double x, double y, double z) {
+        super(world, x, y, z);
+    }
 
-	public EntityArrowElemental(World world, EntityLivingBase shooter, EntityLivingBase target, float velocity, float wobble) {
-		super(world, shooter, target, velocity, wobble);
-	}
+    public EntityArrowElemental(World world, EntityLivingBase shooter, float velocity) {
+        super(world, shooter, velocity);
+    }
 
-	@Override
-	protected double getBaseDamage() {
-		return 4.0D;
-	}
+    public EntityArrowElemental(World world, EntityLivingBase shooter, EntityLivingBase target, float velocity,
+        float wobble) {
+        super(world, shooter, target, velocity, wobble);
+    }
 
-	@Override
-	protected void onImpactBlock(MovingObjectPosition mop) {
-		super.onImpactBlock(mop);
-		if (!this.worldObj.isRemote && this.affectBlocks()) {
-			this.setDead();
-		}
-	}
+    @Override
+    protected double getBaseDamage() {
+        return 4.0D;
+    }
 
-	/**
-	 * Affects all blocks within AoE; returns true if arrow should be consumed
-	 */
-	protected boolean affectBlocks() {
-		boolean flag = false;
-		Set<ChunkPosition> affectedBlocks = new HashSet<ChunkPosition>(WorldUtils.getAffectedBlocksList(worldObj, rand, 1.5F, posX, posY, posZ, null));
-		Block block;
-		int i, j, k;
-		for (ChunkPosition position : affectedBlocks) {
-			i = position.chunkPosX;
-			j = position.chunkPosY;
-			k = position.chunkPosZ;
-			block = this.worldObj.getBlock(i, j, k);
-			if (this.affectBlock(block, i, j, k)) {
-				flag = true;
-			}
-		}
-		return flag;
-	}
+    @Override
+    protected void onImpactBlock(MovingObjectPosition mop) {
+        super.onImpactBlock(mop);
+        if (!this.worldObj.isRemote && this.affectBlocks()) {
+            this.setDead();
+        }
+    }
 
-	/**
-	 * Called from {@link #affectBlocks()} for each block in the list
-	 * @param block
-	 * @param x
-	 * @param y
-	 * @param z
-	 * @return true if the block was affected and the arrow should be consumed
-	 */
-	protected abstract boolean affectBlock(Block block, int x, int y, int z);
+    /**
+     * Affects all blocks within AoE; returns true if arrow should be consumed
+     */
+    protected boolean affectBlocks() {
+        boolean flag = false;
+        Set<ChunkPosition> affectedBlocks = new HashSet<ChunkPosition>(
+            WorldUtils.getAffectedBlocksList(worldObj, rand, 1.5F, posX, posY, posZ, null));
+        Block block;
+        int i, j, k;
+        for (ChunkPosition position : affectedBlocks) {
+            i = position.chunkPosX;
+            j = position.chunkPosY;
+            k = position.chunkPosZ;
+            block = this.worldObj.getBlock(i, j, k);
+            if (this.affectBlock(block, i, j, k)) {
+                flag = true;
+            }
+        }
+        return flag;
+    }
+
+    /**
+     * Called from {@link #affectBlocks()} for each block in the list
+     * 
+     * @param block
+     * @param x
+     * @param y
+     * @param z
+     * @return true if the block was affected and the arrow should be consumed
+     */
+    protected abstract boolean affectBlock(Block block, int x, int y, int z);
 
 }
