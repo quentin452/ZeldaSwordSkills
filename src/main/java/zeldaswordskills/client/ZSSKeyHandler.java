@@ -1,16 +1,16 @@
 /**
  * Copyright (C) <2018> <coolAlias>
- * 
+ *
  * This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
  * you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -107,23 +107,15 @@ public class ZSSKeyHandler {
      * Call for any key code, mouse or keyboard, to handle custom key bindings that may
      * have been remapped to mouse. From MouseEvent, ONLY call this method when the mouse
      * key is pressed, not when it is released (i.e. when event.buttonstate is true).
-     * 
+     *
      * @param mc Pass in Minecraft instance, since this is a static method
      * @param kb The key code of the key pressed; for the mouse, this is the mouse button number minus 100
      */
     public static void onKeyPressed(Minecraft mc, int kb) {
         if (mc.inGameHasFocus && mc.thePlayer != null) {
             ZSSPlayerSkills skills = ZSSPlayerSkills.get(mc.thePlayer);
-            if (kb == mc.gameSettings.keyBindSprint.getKeyCode()) {
-                // Don't allow sprinting while in mid-air (motionY is < 0 even when standing on a block)
-                int x = MathHelper.floor_double(mc.thePlayer.posX);
-                int y = MathHelper.floor_double(mc.thePlayer.posY - mc.thePlayer.yOffset);
-                int z = MathHelper.floor_double(mc.thePlayer.posZ);
-                if (!mc.theWorld.getBlock(x, y - 1, z)
-                    .isSideSolid(mc.theWorld, x, y - 1, z, ForgeDirection.UP)) {
-                    KeyBinding.setKeyBindState(kb, false);
-                }
-            } else if (kb == keys[KEY_SKILL_ACTIVATE].getKeyCode()) {
+
+            if (kb == keys[KEY_SKILL_ACTIVATE].getKeyCode()) {
                 if (skills.hasSkill(SkillBase.swordBasic)) {
                     PacketDispatcher.sendToServer(new ActivateSkillPacket(SkillBase.swordBasic));
                 }
@@ -232,7 +224,7 @@ public class ZSSKeyHandler {
      * Always allowed: keyBindForward, keyBindJump
      * <br>
      * {@link Config#allowVanillaControls}: keyBindLeft, keyBindRight, keyBindBack
-     * 
+     *
      * @param keyCode Will be a negative number for mouse keys, or positive for keyboard
      * @param mc      Pass in Minecraft instance as a workaround to get vanilla KeyBindings
      */
