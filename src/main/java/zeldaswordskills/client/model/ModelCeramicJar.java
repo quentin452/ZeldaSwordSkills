@@ -19,10 +19,10 @@ package zeldaswordskills.client.model;
 
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.entity.Entity;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.entity.Entity;
 
 /**
  *
@@ -31,20 +31,21 @@ import net.minecraft.entity.Entity;
  */
 @SideOnly(Side.CLIENT)
 public class ModelCeramicJar extends ModelBase {
+
     private final ModelRenderer Shape1;
-    private  final ModelRenderer Shape2;
-    private  final ModelRenderer Shape3;
-    private  final ModelRenderer Shape4;
-    private  final ModelRenderer Shape5;
-    private  final ModelRenderer Shape6;
-    private  final ModelRenderer Shape7;
-    private  final ModelRenderer Shape8;
-    private  final ModelRenderer Shape9;
-    private  final ModelRenderer Shape10;
-    private  final ModelRenderer Shape11;
-    private  final ModelRenderer Shape12;
-    private  final ModelRenderer Shape13;
-    private  final ModelRenderer Shape14;
+    private final ModelRenderer Shape2;
+    private final ModelRenderer Shape3;
+    private final ModelRenderer Shape4;
+    private final ModelRenderer Shape5;
+    private final ModelRenderer Shape6;
+    private final ModelRenderer Shape7;
+    private final ModelRenderer Shape8;
+    private final ModelRenderer Shape9;
+    private final ModelRenderer Shape10;
+    private final ModelRenderer Shape11;
+    private final ModelRenderer Shape12;
+    private final ModelRenderer Shape13;
+    private final ModelRenderer Shape14;
 
     public ModelCeramicJar() {
         textureWidth = 64;
@@ -93,6 +94,7 @@ public class ModelCeramicJar extends ModelBase {
         Shape14.addBox(0F, 0F, 0F, 2, 1, 2);
         Shape14.setRotationPoint(-3F, 13F, -1F);
     }
+
     public void renderAll() {
         float f = 0.0625F;
         Shape1.render(f);

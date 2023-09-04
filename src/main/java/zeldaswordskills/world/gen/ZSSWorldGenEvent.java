@@ -1,16 +1,16 @@
 /**
  * Copyright (C) <2017> <coolAlias>
- * 
+ *
  * This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
  * you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -48,7 +48,6 @@ public class ZSSWorldGenEvent {
                 this.secretRoomGen = new MapGenSecretRoom();
                 this.pillarGen = new MapGenSongPillar();
                 break;
-            default:
         }
     }
 
@@ -60,22 +59,20 @@ public class ZSSWorldGenEvent {
         }
         switch (event.world.provider.dimensionId) {
             case -1: // the Nether
-                if (Config.getNetherAttemptsPerChunk() > 0) {
+                if (Config.getNetherAttemptsPerChunk() > 0 && netherRoomGen != null) {
                     netherRoomGen.generate(event.chunkProvider, event.world, event.rand, event.chunkX, event.chunkZ);
                 }
                 break;
             case 0: // the Overworld
-                if (Config.getAttemptsPerChunk() > 0) {
+                if (Config.getAttemptsPerChunk() > 0 && secretRoomGen != null) {
                     secretRoomGen.generate(event.chunkProvider, event.world, event.rand, event.chunkX, event.chunkZ);
                 }
-                if (Config.doPillarGen()) {
+                if (Config.doPillarGen() && pillarGen != null) {
                     pillarGen.generate(event.chunkProvider, event.world, event.rand, event.chunkX, event.chunkZ);
                 }
                 if (Config.doBombFlowerGen()) {
                     bombGen.generate(event.world, event.rand, event.chunkX, event.chunkZ);
                 }
-                break;
-            default:
                 break;
         }
     }
@@ -88,7 +85,7 @@ public class ZSSWorldGenEvent {
             return;
         }
         try {
-            if (event.world.provider.isHellWorld) {
+            if (event.world.provider.isHellWorld && jarGen != null) {
                 for (int n = 0; n < Config.getJarClustersPerChunkNether(); ++n) {
                     if (event.rand.nextFloat() < Config.getJarGenChanceNether()) {
                         jarGen.doJarGen(
@@ -100,17 +97,14 @@ public class ZSSWorldGenEvent {
                             true);
                     }
                 }
-            } else if (event.rand.nextFloat() < Config.getJarGenChance() && event.rand.nextInt(4) == 0) {
+            } else if (event.rand.nextFloat() < Config.getJarGenChance() && event.rand.nextInt(4) == 0 && jarGen != null) {
                 jarGen.doJarGen(event.world, event.rand, event.chunkX, event.chunkZ, Config.getJarsPerCluster(), false);
             }
         } catch (Exception e) {
             Throwable cause = e.getCause();
-            if (e.getMessage() != null && e.getMessage()
-                .equals("Already decorating!!")
-                || (cause != null && cause.getMessage() != null
-                    && cause.getMessage()
-                        .equals("Already decorating!!"))) {
-                ;
+            if (e.getMessage() != null && e.getMessage().equals("Already decorating!!")
+                || (cause != null && cause.getMessage() != null && cause.getMessage().equals("Already decorating!!"))) {
+                // Handle or log the already decorating exception if needed
             } else {
                 e.printStackTrace();
             }
@@ -125,7 +119,7 @@ public class ZSSWorldGenEvent {
             return;
         }
         try {
-            if (event.world.provider.isSurfaceWorld()) {
+            if (event.world.provider.isSurfaceWorld() && jarGen != null) {
                 for (int n = 0; n < Config.getJarClustersPerChunkSub(); ++n) {
                     if (event.rand.nextFloat() < Config.getJarGenChanceSub()) {
                         int i = event.chunkX + event.rand.nextInt(16) + 8;
@@ -139,12 +133,9 @@ public class ZSSWorldGenEvent {
             }
         } catch (Exception e) {
             Throwable cause = e.getCause();
-            if (e.getMessage() != null && e.getMessage()
-                .equals("Already decorating!!")
-                || (cause != null && cause.getMessage() != null
-                    && cause.getMessage()
-                        .equals("Already decorating!!"))) {
-                ;
+            if (e.getMessage() != null && e.getMessage().equals("Already decorating!!")
+                || (cause != null && cause.getMessage() != null && cause.getMessage().equals("Already decorating!!"))) {
+                // Handle or log the already decorating exception if needed
             } else {
                 e.printStackTrace();
             }
