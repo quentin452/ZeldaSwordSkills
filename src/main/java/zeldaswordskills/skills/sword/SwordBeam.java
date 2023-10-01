@@ -1,16 +1,16 @@
 /**
  * Copyright (C) <2017> <coolAlias>
- * 
+ *
  * This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
  * you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -46,10 +46,10 @@ import zeldaswordskills.util.PlayerUtils;
 import zeldaswordskills.util.WorldUtils;
 
 /**
- * 
+ *
  * SWORD BEAM
  * Description: Shoot a beam of energy from the sword tip
- * Activation: Attack while sneaking and at near full health
+ * Activation: Attack while sneaking and at nearcanUse full health
  * Effect: Shoots a ranged beam capable of damaging one or possibly more targets
  * Damage: 30 + (level * 10) percent of the base sword damage (without other bonuses)
  * Range: Approximately 12 blocks, plus one block per level
@@ -61,13 +61,13 @@ import zeldaswordskills.util.WorldUtils;
  * - Using the Master Sword will shoot a beam that can penetrate multiple targets
  * - Each additional target receives 20% less damage than the previous
  * - Cannot unleash a second beam until the previous beam expires or strikes a target
- * 
+ *
  * Sword beam shot from Link's sword when at full health. Inflicts the sword's full
  * base damage, not including enchantment or other bonuses, to the first entity struck.
- * 
+ *
  * If using the Master Sword, the beam will shoot through enemies, hitting all targets
  * in its direct path.
- * 
+ *
  */
 public class SwordBeam extends SkillActive {
 
@@ -141,10 +141,20 @@ public class SwordBeam extends SkillActive {
     @Override
     public boolean canUse(EntityPlayer player) {
         ZSSPlayerInfo info = ZSSPlayerInfo.get(player);
-        if (super.canUse(player) && !isActive() && info.canUseMagic() && PlayerUtils.isSword(player.getHeldItem())) {
-            return (player.capabilities.isCreativeMode
-                || (player.attackTime == 0 && info.getCurrentMagic() >= getMagicCost() && checkHealth(player)));
+
+        // Check if magic consumption is disabled in the config
+        if (Config.swordBeamRequiresMagic) {
+            if (super.canUse(player) && !isActive() && info.canUseMagic() && PlayerUtils.isSword(player.getHeldItem())) {
+                return (player.capabilities.isCreativeMode
+                    || (player.attackTime == 0 && info.getCurrentMagic() >= getMagicCost() && checkHealth(player)));
+            }
+        } else {
+            // If magic consumption is disabled, allow the action without checking magic and other conditions
+            if (super.canUse(player) && !isActive() && info.canUseMagic() && PlayerUtils.isSword(player.getHeldItem())) {
+                return player.capabilities.isCreativeMode || (player.attackTime == 0 && checkHealth(player));
+            }
         }
+
         return false;
     }
 
@@ -220,7 +230,7 @@ public class SwordBeam extends SkillActive {
     /**
      * Call from {@link EntitySwordBeam#onImpact} to allow handling of ICombo;
      * striking an entity sets the missTimer to zero
-     * 
+     *
      * @param hitBlock true if sword beam hit a block rather than an entity
      */
     public void onImpact(EntityPlayer player, boolean hitBlock) {

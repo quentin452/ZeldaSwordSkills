@@ -1,16 +1,16 @@
 /**
  * Copyright (C) <2018> <coolAlias>
- * 
+ *
  * This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
  * you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -46,7 +46,7 @@ import zeldaswordskills.util.BossType;
 import zeldaswordskills.util.WarpPoint;
 
 /**
- * 
+ *
  * Fields denoted with [SYNC] need to be sent to each client as they log in
  * to the server. In some cases this is because the field is mainly used
  * on the client (e.g. attack speed), in others because the field is used on
@@ -64,6 +64,8 @@ public class Config {
     public static boolean isBuffBarEnabled;
     /** [Buff HUD] Whether the buff bar should be displayed horizontally */
     public static boolean isBuffBarHorizontal;
+    public static boolean swordBeamRequiresMagic;
+
     /** [Buff HUD][Alignment: Horizontal] Alignment on the X axis [left|center|right] */
     public static HALIGN buffBarHAlign;
     /** [Buff HUD][Alignment: Vertical] Alignment on the Y axis [top|center|bottom] */
@@ -506,6 +508,8 @@ public class Config {
             .get("Mod Support", "[BattleGear2] Allow Master Swords to be held in the off-hand", false)
             .getBoolean(false);
         /* ================== GENERAL ===================== */
+        enableAutoEquip = config.get("general", "Swrod Beam Skills require magic", true)
+            .getBoolean(true);
         enableStunPlayer = config
             .get("General", "Whether players can be stunned; if false, item use is still interrupted", false)
             .getBoolean(false);
