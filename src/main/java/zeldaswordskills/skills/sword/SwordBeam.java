@@ -118,7 +118,9 @@ public class SwordBeam extends SkillActive {
     private float getMagicCost() {
         return 10.0F;
     }
-
+    private float getMagicCost2() {
+        return 0.0F;
+    }
     /** Returns true if players current health is within the allowed limit */
     private boolean checkHealth(EntityPlayer player) {
         return PlayerUtils.getHealthMissing(player) <= Config.getHealthAllowance(level);
@@ -141,22 +143,18 @@ public class SwordBeam extends SkillActive {
     @Override
     public boolean canUse(EntityPlayer player) {
         ZSSPlayerInfo info = ZSSPlayerInfo.get(player);
-
-        // Check if magic consumption is disabled in the config
-        if (Config.swordBeamRequiresMagic) {
-            if (super.canUse(player) && !isActive() && info.canUseMagic() && PlayerUtils.isSword(player.getHeldItem())) {
-                return (player.capabilities.isCreativeMode
-                    || (player.attackTime == 0 && info.getCurrentMagic() >= getMagicCost() && checkHealth(player)));
-            }
-        } else {
-            // If magic consumption is disabled, allow the action without checking magic and other conditions
-            if (super.canUse(player) && !isActive() && info.canUseMagic() && PlayerUtils.isSword(player.getHeldItem())) {
-                return player.capabilities.isCreativeMode || (player.attackTime == 0 && checkHealth(player));
-            }
+         if (super.canUse(player) && !Config.swordBeamRequiresMagic && !isActive() && info.canUseMagic() && PlayerUtils.isSword(player.getHeldItem())) {
+            return (player.capabilities.isCreativeMode
+                ||(!Config.swordBeamRequiresMagic)
+                || (player.attackTime == 0 && info.getCurrentMagic() >= getMagicCost2()));
         }
-
+        else if (super.canUse(player) && !isActive() && info.canUseMagic() && PlayerUtils.isSword(player.getHeldItem())) {
+            return (player.capabilities.isCreativeMode
+                || (player.attackTime == 0 && info.getCurrentMagic() >= getMagicCost() && checkHealth(player)));
+        }
         return false;
     }
+
 
     /**
      * Player must be on ground to prevent conflict with RisingCut
@@ -188,7 +186,11 @@ public class SwordBeam extends SkillActive {
     protected boolean onActivated(World world, EntityPlayer player) {
         player.swingItem();
         if (!world.isRemote) {
-            if (!ZSSPlayerInfo.get(player)
+            if (!Config.swordBeamRequiresMagic && !ZSSPlayerInfo.get(player)
+                .useMagic(getMagicCost2())) {
+                return false;
+            }
+            else if (Config.swordBeamRequiresMagic && !ZSSPlayerInfo.get(player)
                 .useMagic(getMagicCost())) {
                 return false;
             }

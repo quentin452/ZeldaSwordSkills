@@ -508,7 +508,7 @@ public class Config {
             .get("Mod Support", "[BattleGear2] Allow Master Swords to be held in the off-hand", false)
             .getBoolean(false);
         /* ================== GENERAL ===================== */
-        enableAutoEquip = config.get("general", "Sword Beam Skills require magic", true)
+        swordBeamRequiresMagic = config.get("general", "Sword Beam Skills require magic", true)
             .getBoolean(true);
         enableStunPlayer = config
             .get("General", "Whether players can be stunned; if false, item use is still interrupted", false)
