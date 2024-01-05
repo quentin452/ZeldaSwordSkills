@@ -1,16 +1,16 @@
 /**
  * Copyright (C) <2018> <coolAlias>
- * 
+ *
  * This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
  * you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -30,6 +30,7 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -61,19 +62,19 @@ import zeldaswordskills.util.MerchantRecipeHelper;
 import zeldaswordskills.util.PlayerUtils;
 
 /**
- * 
+ *
  * Various boots Link may find during his adventures. Each pair has the unique attribute
  * of being totally indestructible, but also unenchantable.
- * 
+ *
  * Heavy Boots: Made of heavy iron, these allow Link to move more quickly in liquids,
  * but more slowly on land. The great weight provides great resistance
  * to knockback effects. Wearing Heavy Boots allows Link to pull other
  * entities using the Hookshot.
- * 
+ *
  * Hover Boots: Allow wearer to dash across chasms, liquids, and other things.
- * 
+ *
  * Pegasus Boots: These greatly increase the hero's speed and evasion.
- * 
+ *
  * Rubber Boots: Handy for reducing the wearer's conductivity.
  *
  */
@@ -339,12 +340,17 @@ public class ItemArmorBoots extends ItemArmor implements IEquipTrigger, IUnencha
 
         @Override
         public void onArmorEquipped(ItemStack stack, EntityPlayer player, int equipSlot) {
-            player.getEntityAttribute(SharedMonsterAttributes.movementSpeed)
-                .applyModifier(pegasusBootsMoveBonus);
-            ZSSPlayerInfo.get(player)
-                .setFlag(ZSSPlayerInfo.MOBILITY, true);
-            ZSSEntityInfo.get(player)
-                .applyBuff(Buff.EVADE_UP, Integer.MAX_VALUE, 25);
+
+            IAttributeInstance movementSpeedAttribute = player.getEntityAttribute(SharedMonsterAttributes.movementSpeed);
+
+            movementSpeedAttribute.removeModifier(pegasusBootsMoveBonus);
+
+            movementSpeedAttribute.applyModifier(pegasusBootsMoveBonus);
+
+            ZSSPlayerInfo.get(player).setFlag(ZSSPlayerInfo.MOBILITY, true);
+
+            ZSSEntityInfo.get(player).applyBuff(Buff.EVADE_UP, Integer.MAX_VALUE, 25);
+
         }
 
         @Override
