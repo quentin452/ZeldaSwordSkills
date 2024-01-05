@@ -1,16 +1,16 @@
 /**
  * Copyright (C) <2018> <coolAlias>
- * 
+ *
  * This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
  * you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -19,6 +19,7 @@ package zeldaswordskills.entity.player;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Objects;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.attributes.IAttribute;
@@ -201,25 +202,25 @@ public class ZSSPlayerInfo implements IExtendedEntityProperties {
 
     /**
      * Depletes the magic bar by the amount whether the player has enough magic or not
-     * 
+     *
      * @return True if the player had sufficient magic for the amount
      */
     public boolean consumeMagic(float amount) {
-        return (canUseMagic() ? useMagic(amount, true) : false);
+        return (canUseMagic() && useMagic(amount, true));
     }
 
     /**
      * Depletes the magic bar by the amount only if the player has sufficient magic
-     * 
+     *
      * @return True if the player had sufficient magic for the amount
      */
     public boolean useMagic(float amount) {
-        return (canUseMagic() ? useMagic(amount, false) : false);
+        return (canUseMagic() && useMagic(amount, false));
     }
 
     /**
      * Returns true if current magic is at least equal to the amount to use
-     * 
+     *
      * @param consume true to deplete magic bar even if magic is insufficient
      */
     private boolean useMagic(float amount, boolean consume) {
@@ -249,12 +250,10 @@ public class ZSSPlayerInfo implements IExtendedEntityProperties {
     /** Adds the value to the player's stats */
     public void addStat(Stats stat, int value) {
         int i = playerStats.remove(stat);
-        switch (stat) {
-            case STAT_BOSS_ROOMS:
-                playerStats.put(stat, i | value);
-                break;
-            default:
-                playerStats.put(stat, i + value);
+        if (Objects.requireNonNull(stat) == Stats.STAT_BOSS_ROOMS) {
+            playerStats.put(stat, i | value);
+        } else {
+            playerStats.put(stat, i + value);
         }
     }
 
@@ -273,7 +272,7 @@ public class ZSSPlayerInfo implements IExtendedEntityProperties {
 
     /**
      * Sets the player's block timer, clears the item in use and adds exhaustion upon blocking an attack
-     * 
+     *
      * @param damage only used server side to calculate exhaustion: 0.3F * damage
      */
     public void onAttackBlocked(ItemStack shield, float damage) {
@@ -304,7 +303,7 @@ public class ZSSPlayerInfo implements IExtendedEntityProperties {
         if (value) {
             flags |= flag;
         } else {
-            flags &= ~flag;
+            flags &= (byte) ~flag;
         }
     }
 
@@ -340,7 +339,7 @@ public class ZSSPlayerInfo implements IExtendedEntityProperties {
 
     /**
      * Marks this arrow as nocked in the Hero's Bow
-     * 
+     *
      * @param stack The current arrow or null if empty
      */
     public void setNockedArrow(ItemStack stack) {
@@ -441,13 +440,13 @@ public class ZSSPlayerInfo implements IExtendedEntityProperties {
     }
 
     /** Used to register these extended properties for the player during EntityConstructing event */
-    public static final void register(EntityPlayer player) {
+    public static void register(EntityPlayer player) {
         player.registerExtendedProperties(EXT_PROP_NAME, new ZSSPlayerInfo(player));
         ZSSQuests.register(player);
     }
 
     /** Returns ExtendedPlayer properties for player */
-    public static final ZSSPlayerInfo get(EntityPlayer player) {
+    public static ZSSPlayerInfo get(EntityPlayer player) {
         return (ZSSPlayerInfo) player.getExtendedProperties(EXT_PROP_NAME);
     }
 
@@ -494,12 +493,10 @@ public class ZSSPlayerInfo implements IExtendedEntityProperties {
         playerSkills.saveNBTData(compound);
         playerSongs.saveNBTData(compound);
         compound.setFloat("zssCurrentMagic", mp);
-        compound.setIntArray(
-            "zssStats",
-            ArrayUtils.toPrimitive(
-                playerStats.values()
-                    .toArray(new Integer[playerStats.size()])));
+        compound.setFloat("zssCurrentMaxMagic", getMaxMagic());
+        compound.setIntArray("zssStats", playerStats.values().stream().mapToInt(Integer::intValue).toArray());
         compound.setByte("ZSSGearReceived", receivedGear);
+
         NBTTagList armorList = new NBTTagList();
         for (int i = 0; i < lastWornArmor.length; ++i) {
             if (lastWornArmor[i] != null) {
@@ -512,7 +509,6 @@ public class ZSSPlayerInfo implements IExtendedEntityProperties {
         compound.setTag("zssLastWornArmor", armorList);
         compound.setInteger("slingshotMode", slingshotMode);
         compound.setInteger("skulltulaTokens", skulltulaTokens);
-
     }
 
     @Override
@@ -520,11 +516,15 @@ public class ZSSPlayerInfo implements IExtendedEntityProperties {
         playerSkills.loadNBTData(compound);
         playerSongs.loadNBTData(compound);
         mp = compound.getFloat("zssCurrentMagic");
+        setMaxMagic(compound.getFloat("zssCurrentMaxMagic"));
+
         int[] stats = compound.getIntArray("zssStats");
         for (int i = 0; i < stats.length; ++i) {
             playerStats.put(Stats.values()[i], stats[i]);
         }
+
         receivedGear = compound.getByte("ZSSGearReceived");
+
         NBTTagList armorList = compound.getTagList("zssLastWornArmor", Constants.NBT.TAG_COMPOUND);
         for (int i = 0; i < armorList.tagCount(); ++i) {
             NBTTagCompound tag = armorList.getCompoundTagAt(i);
@@ -533,6 +533,7 @@ public class ZSSPlayerInfo implements IExtendedEntityProperties {
                 lastWornArmor[slot] = ItemStack.loadItemStackFromNBT(tag);
             }
         }
+
         // For backwards compatibility:
         slingshotMode = compound.getInteger("slingshotMode");
         skulltulaTokens = compound.getInteger("skulltulaTokens");
