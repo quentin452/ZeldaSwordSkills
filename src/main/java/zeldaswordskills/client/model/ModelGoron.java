@@ -1,16 +1,16 @@
 /**
  * Copyright (C) <2015> <coolAlias>
- * 
+ *
  * This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
  * you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -27,35 +27,37 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 /**
- * 
+ *
  * @author Model and texture courtesy of RazzleberryFox; re-coded by coolAlias
  *
  */
 @SideOnly(Side.CLIENT)
 public class ModelGoron extends ModelBase {
 
-    private ModelRenderer head;
-    private ModelRenderer sumo1;
-    private ModelRenderer sumo2;
-    private ModelRenderer sumo3;
-    private ModelRenderer rightArm;
-    private ModelRenderer leftArm;
-    private ModelRenderer rightLeg;
-    private ModelRenderer leftLeg;
-    private ModelRenderer body;
-    private ModelRenderer boobs;
-    private ModelRenderer tum1;
-    private ModelRenderer tum2;
-    private ModelRenderer tum3;
-    private ModelRenderer back1;
-    private ModelRenderer back2;
-    private ModelRenderer back3;
-    private ModelRenderer back4;
-    private ModelRenderer[][] rockArrays;
+    private final ModelRenderer head;
+    private final ModelRenderer sumo1;
+    private final ModelRenderer sumo2;
+    private final ModelRenderer sumo3;
+    private final ModelRenderer rightArm;
+    private final ModelRenderer leftArm;
+    private final ModelRenderer rightLeg;
+    private final ModelRenderer leftLeg;
+    private final ModelRenderer body;
+    private final ModelRenderer boobs;
+    private final ModelRenderer tum1;
+    private final ModelRenderer tum2;
+    private final ModelRenderer tum3;
+    private final ModelRenderer back1;
+    private final ModelRenderer back2;
+    private final ModelRenderer back3;
+    private final ModelRenderer back4;
+    private final ModelRenderer[][] rockArrays;
 
     public ModelGoron() {
         int i;
-        float x, y, z;
+        float x;
+        float y;
+        float z;
         float rot = 0.7853982F; // Rotation used for rocks
         textureWidth = 128;
         textureHeight = 64;
@@ -199,8 +201,8 @@ public class ModelGoron extends ModelBase {
             rockArrays[3][i] = new ModelRenderer(this, 50, 16);
             rockArrays[3][i].addBox(-1F, -1F, -1F, 2, 2, 2);
             x = (i % 2 == 1 ? 1 : -1) * 4.5F;
-            z = (i / 2 == 1 ? 7F : 6F);
-            rockArrays[3][i].setRotationPoint(x, 5F + (4F * (i / 2)), z);
+            z = ((double) i/ 2 == 1 ? 7F : 6F);
+            rockArrays[3][i].setRotationPoint(x, 5F + (4F * ((float) i / 2)), z);
             rockArrays[3][i].setTextureSize(textureWidth, textureHeight);
             rockArrays[3][i].mirror = true;
             setRotation(rockArrays[3][i], rot, (i % 2 == 1 ? rot : -rot), 0F);
@@ -210,7 +212,7 @@ public class ModelGoron extends ModelBase {
             rockArrays[4][i] = new ModelRenderer(this, 50, 16);
             rockArrays[4][i].addBox(-1F, -1F, -1F, 2, 2, 2);
             x = (i % 2 == 0 ? -1F : 1F);
-            z = (float) ((i / 2) - 1);
+            z = (((float) i / 2) - 1);
             rockArrays[4][i].setRotationPoint(x, -4.5F, z);
             rockArrays[4][i].setTextureSize(textureWidth, textureHeight);
             rockArrays[4][i].mirror = true;
@@ -220,7 +222,7 @@ public class ModelGoron extends ModelBase {
         for (i = 0; i < rockArrays[5].length; ++i) {
             rockArrays[5][i] = new ModelRenderer(this, 50, 16);
             rockArrays[5][i].addBox(-1F, -1F, -1F, 2, 2, 2);
-            x = -3F + ((float) (i % 5) * 1.5F);
+            x = -3F + ((i % 5) * 1.5F);
             rockArrays[5][i].setRotationPoint(x, (i < 5 ? 5F : 13F), 7F);
             rockArrays[5][i].setTextureSize(textureWidth, textureHeight);
             rockArrays[5][i].mirror = true;
@@ -231,7 +233,7 @@ public class ModelGoron extends ModelBase {
         for (i = 0; i < rockArrays[6].length; ++i) {
             rockArrays[6][i] = new ModelRenderer(this, 50, 16);
             rockArrays[6][i].addBox(-1F, -1F, -1F, 2, 2, 2);
-            rockArrays[6][i].setRotationPoint(-2.5F + ((float) i * 2.5F), 9F, 9F);
+            rockArrays[6][i].setRotationPoint(-2.5F + (i * 2.5F), 9F, 9F);
             rockArrays[6][i].setTextureSize(textureWidth, textureHeight);
             rockArrays[6][i].mirror = true;
             setRotation(rockArrays[6][i], rot, 0F, 0F);
@@ -278,8 +280,8 @@ public class ModelGoron extends ModelBase {
         for (i = 0; i < rockArrays[11].length; ++i) {
             rockArrays[11][i] = new ModelRenderer(this, 50, 16);
             rockArrays[11][i].addBox(-2F, -1F, -1F, 2, 2, 2);
-            x = (float) ((i + 1) % 3);
-            y = -(float) (((i % 3) + 1) / 2) - ((i / 3) * 2F);
+            x = ((i + 1) % 3);
+            y = -(float) ((double) ((i % 3) + 1) / 2) - (((float) i / 3) * 2F);
             rockArrays[11][i].setRotationPoint(x, y, 4F);
             rockArrays[11][i].setTextureSize(textureWidth, textureHeight);
             rockArrays[11][i].mirror = true;
@@ -321,16 +323,16 @@ public class ModelGoron extends ModelBase {
         model.rotateAngleZ = z;
     }
 
-    private float getSwingAmount(float f, float max) {
-        return (Math.abs(f % max - max * 0.5F) - max * 0.25F) / (max * 0.25F);
+    private float getSwingAmount(float f) {
+        return (Math.abs(f % (float) 10.0 - (float) 10.0 * 0.5F) - (float) 10.0 * 0.25F) / ((float) 10.0 * 0.25F);
     }
 
     @Override
     public void setLivingAnimations(EntityLivingBase entity, float par2, float par3, float par4) {
         int i = entity.attackTime;
         if (i > 0) {
-            rightArm.rotateAngleX = -2.0F + 1.5F * getSwingAmount((float) i - par4, 10.0F);
-            leftArm.rotateAngleX = -2.0F + 1.5F * getSwingAmount((float) i - par4, 10.0F);
+            rightArm.rotateAngleX = -2.0F + 1.5F * getSwingAmount(i - par4);
+            leftArm.rotateAngleX = -2.0F + 1.5F * getSwingAmount(i - par4);
         }
     }
 
@@ -338,7 +340,6 @@ public class ModelGoron extends ModelBase {
     public void setRotationAngles(float f1, float f2, float f3, float f4, float f5, float f6, Entity entity) {
         super.setRotationAngles(f1, f2, f3, f4, f5, f6, entity);
         head.rotateAngleY = f4 / (180F / (float) Math.PI);
-        // head.rotateAngleX = f5 / (180F / (float) Math.PI);
 
         if (!(entity instanceof EntityLivingBase) || ((EntityLivingBase) entity).attackTime == 0) {
             rightArm.rotateAngleX = MathHelper.cos(f1 * 0.6662F + (float) Math.PI) * 2.0F * f2 * 0.5F;
