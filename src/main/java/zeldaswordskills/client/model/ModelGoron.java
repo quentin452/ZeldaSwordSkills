@@ -25,6 +25,7 @@ import net.minecraft.util.MathHelper;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import zeldaswordskills.ref.Config;
 
 /**
  *
@@ -310,10 +311,12 @@ public class ModelGoron extends ModelBase {
         back2.render(f5);
         back3.render(f5);
         back4.render(f5);
+        if(!Config.disableRockRenderingOnGoron){
         for (ModelRenderer[] rocks : rockArrays) {
             for (ModelRenderer r : rocks) {
                 r.render(f5);
             }
+        }
         }
     }
 

@@ -96,6 +96,10 @@ public class Config {
      */
     public static boolean requireDoubleTap;
     /**
+     * [Goron Model] Disable Rock rendering on Goron?(Rocks cause really large FPS lags when rendered)
+     */
+    public static boolean disableRockRenderingOnGoron;
+    /**
      * [Ending Blow HUD] Enable Ending Blow HUD display (if disabled, there is not any indication that the skill is
      * ready to use)
      */
@@ -1165,6 +1169,11 @@ public class Config {
             "[Controls] Whether Dodge and Parry require double-tap or not (double-tap always required with vanilla control scheme)",
             true)
             .getBoolean(true);
+        disableRockRenderingOnGoron = clientConfig.get(
+                "_Client Settings_",
+                "[Goron Model] Disable Rock rendering on Goron?(Rocks cause really large FPS lags when rendered)",
+                false)
+            .getBoolean(false);
         resetNotesInterval = MathHelper.clamp_int(
             clientConfig
                 .get(
