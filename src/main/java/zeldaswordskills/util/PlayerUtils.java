@@ -1,24 +1,26 @@
 /**
  * Copyright (C) <2018> <coolAlias>
- * 
+ *
  * This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
  * you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package zeldaswordskills.util;
 
+import java.util.Objects;
 import java.util.UUID;
 
+import mods.battlegear2.api.core.IInventoryPlayerBattle;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -34,7 +36,6 @@ import net.minecraft.stats.StatFileWriter;
 import net.minecraft.util.ChatComponentTranslation;
 
 import mods.battlegear2.api.core.IBattlePlayer;
-import mods.battlegear2.api.core.InventoryPlayerBattle;
 import mods.battlegear2.api.shield.IShield;
 import zeldaswordskills.ZSSMain;
 import zeldaswordskills.api.item.IReflective;
@@ -46,7 +47,7 @@ import zeldaswordskills.network.PacketDispatcher;
 import zeldaswordskills.network.bidirectional.PlaySoundPacket;
 
 /**
- * 
+ *
  * A collection of utility methods related to the player
  *
  */
@@ -76,7 +77,7 @@ public class PlayerUtils {
         if (player.isBlocking()) {
             return true;
         } else if (ZSSMain.isBG2Enabled) {
-            return ((IBattlePlayer) player).isBattlemode() && ((IBattlePlayer) player).isBlockingWithShield();
+            return ((IBattlePlayer) player).battlegear2$isBattlemode() && ((IBattlePlayer) player).battlegear2$isBlockingWithShield();
         }
         return false;
     }
@@ -89,22 +90,22 @@ public class PlayerUtils {
         if (player.isBlocking() && PlayerUtils.isShield(player.getHeldItem())) {
             return true;
         } else if (ZSSMain.isBG2Enabled) {
-            return ((IBattlePlayer) player).isBattlemode() && ((IBattlePlayer) player).isBlockingWithShield();
+            return ((IBattlePlayer) player).battlegear2$isBattlemode() && ((IBattlePlayer) player).battlegear2$isBlockingWithShield();
         }
         return false;
     }
 
     /**
      * Return the player's currently held item, accounting for BG2 use
-     * 
+     *
      * @param player
      * @param mainHand Used for BG2 to fetch the main hand (true) or off hand (false)
      * @return
      */
     public static ItemStack getHeldItem(EntityPlayer player, boolean mainHand) {
-        if (ZSSMain.isBG2Enabled && ((IBattlePlayer) player).isBattlemode()) {
-            return (mainHand ? ((InventoryPlayerBattle) player.inventory).getCurrentItem()
-                : ((InventoryPlayerBattle) player.inventory).getCurrentOffhandWeapon());
+        if (ZSSMain.isBG2Enabled && ((IBattlePlayer) player).battlegear2$isBattlemode()) {
+            return (mainHand ? player.inventory.getCurrentItem()
+                : ((IInventoryPlayerBattle) player.inventory).battlegear2$getCurrentOffhandWeapon());
         }
         return player.getHeldItem();
     }
@@ -167,8 +168,8 @@ public class PlayerUtils {
 
     /** Returns true if the entity is currently holding a Master sword */
     public static boolean isHoldingMasterSword(EntityLivingBase entity) {
-        return (isHoldingZeldaSword(entity) && ((ItemZeldaSword) entity.getHeldItem()
-            .getItem()).isMasterSword());
+        return (isHoldingZeldaSword(entity) && ((ItemZeldaSword) Objects.requireNonNull(entity.getHeldItem()
+                .getItem())).isMasterSword());
     }
 
     /**
@@ -213,7 +214,7 @@ public class PlayerUtils {
     /**
      * Returns true if the player has the Item somewhere in the inventory, with
      * optional metadata for subtyped items
-     * 
+     *
      * @param meta use -1 to ignore the stack's damage value
      */
     public static boolean hasItem(EntityPlayer player, Item item, int meta) {
@@ -223,20 +224,18 @@ public class PlayerUtils {
     /**
      * Returns true if the player has the Item somewhere in the inventory, with
      * optional metadata for subtyped items
-     * 
+     *
      * @param meta  use -1 to ignore the stack's damage value
      * @param count minimum required combined stack size of all matching items
      */
     public static boolean hasItem(EntityPlayer player, Item item, int meta, int count) {
         int n = 0;
         for (ItemStack stack : player.inventory.mainInventory) {
-            if (stack != null && stack.getItem() == item) {
-                if (meta == -1 || stack.getItemDamage() == meta) {
+            if (stack != null && stack.getItem() == item && (meta == -1 || stack.getItemDamage() == meta)) {
                     n += stack.stackSize;
                     if (n >= count) {
                         return true;
                     }
-                }
             }
         }
         return false;
@@ -270,7 +269,7 @@ public class PlayerUtils {
     /**
      * Attempts to consume the amount given from the player's held item stack only.
      * In Creative, acts like hasItem (does not consume).
-     * 
+     *
      * @param damage Required stack damage to match, or -1 to not check damage
      */
     public static boolean consumeHeldItem(EntityPlayer player, Item item, int damage, int amount) {
@@ -287,7 +286,6 @@ public class PlayerUtils {
         } else {
             stack.stackSize -= amount;
             if (stack.stackSize < 1) {
-                stack = null;
                 player.setCurrentItemOrArmor(0, null);
             }
             return true;
@@ -313,7 +311,7 @@ public class PlayerUtils {
     /**
      * A metadata-sensitive version of {@link InventoryPlayer#consumeInventoryItem(int)}
      * In Creative, acts like hasItem (does not consume).
-     * 
+     *
      * @param item     The type of item to consume
      * @param meta     The required damage value of the stack
      * @param required The number of such items to consume
@@ -372,11 +370,11 @@ public class PlayerUtils {
      * Plays a sound at the player's position with randomized volume and pitch.
      * Sends a packet to the client to play a sound on the client side only, or
      * sends a packet to the server to play a sound on the server for all to hear.
-     * 
+     *
      * To avoid playing a sound twice, only call the method from one side or the
      * other, not both. To play a sound directly on the server, use
      * {@link WorldUtils#playSoundAtEntity} instead.
-     * 
+     *
      * @param f   Volume: nextFloat() * f + add
      * @param add Pitch: 1.0F / (nextFloat() * f + add)
      */

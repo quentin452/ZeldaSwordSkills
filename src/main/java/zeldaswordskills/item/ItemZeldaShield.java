@@ -1,16 +1,16 @@
 /**
  * Copyright (C) <2018> <coolAlias>
- * 
+ *
  * This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
  * you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -19,6 +19,7 @@ package zeldaswordskills.item;
 
 import java.util.List;
 
+import mods.battlegear2.api.core.IInventoryPlayerBattle;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -42,7 +43,6 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import mods.battlegear2.api.ISheathed;
 import mods.battlegear2.api.core.BattlegearUtils;
-import mods.battlegear2.api.core.InventoryPlayerBattle;
 import mods.battlegear2.api.shield.IArrowCatcher;
 import mods.battlegear2.api.shield.IArrowDisplay;
 import mods.battlegear2.api.shield.IShield;
@@ -163,7 +163,7 @@ public class ItemZeldaShield extends Item implements IDashItem, IFairyUpgrade, I
     /**
      * Called when the shield blocks an attack when held in the normal fashion (i.e. non-BG2)
      * used by Deku Shield to damage / destroy the stack and by Mirror Shield to reflect projectiles
-     * 
+     *
      * @param wasReflected true if the damage source was a projectile and was reflected
      * @return Return the amount of damage remaining, if any; 0 cancels the hurt event
      */
@@ -179,11 +179,9 @@ public class ItemZeldaShield extends Item implements IDashItem, IFairyUpgrade, I
             } else if (source.isProjectile() && !source.isExplosion()
                 && source.getSourceOfDamage() instanceof IProjectile) {
                     if (ZSSMain.isBG2Enabled && player.getHeldItem() == shield
-                        && shield.getItem() instanceof IArrowCatcher) {
-                        if (((IArrowCatcher) shield.getItem())
-                            .catchArrow(shield, player, (IProjectile) source.getSourceOfDamage())) {
-                            ((InventoryPlayerBattle) player.inventory).hasChanged = true;
-                        }
+                        && shield.getItem() instanceof IArrowCatcher && (((IArrowCatcher) shield.getItem())
+                            .catchArrow(shield, player, (IProjectile) source.getSourceOfDamage()))) {
+                        ((IInventoryPlayerBattle) player.inventory).battlegear2$setDirty(true);
                     }
                 } else if (source instanceof IDamageAoE && ((IDamageAoE) source).isAoEDamage()) {
                     // Wooden shields don't reduce damage from unblockable damage sources
