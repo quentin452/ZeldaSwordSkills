@@ -1,16 +1,16 @@
 /**
  * Copyright (C) <2015> <coolAlias>
- * 
+ *
  * This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
  * you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -19,6 +19,7 @@ package zeldaswordskills.world.gen.feature;
 
 import java.util.Random;
 
+import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.WorldGenerator;
@@ -27,13 +28,16 @@ import zeldaswordskills.block.ZSSBlocks;
 
 public class WorldGenBombFlowers extends WorldGenerator {
 
+    private static final Block AIR_BLOCK = Blocks.air;
+    private static final Block COBBLESTONE_BLOCK = Blocks.cobblestone;
+
     public WorldGenBombFlowers() {
         super(false);
     }
 
     /**
      * Attempts to generate several bomb flowers at the given chunk coordinates
-     * 
+     *
      * @param chunkX Chunk coordinate of the chunk's lowest x-coordinate
      * @param chunkZ Chunk coordinate of the chunk's lowest z-coordinate
      */
@@ -65,13 +69,16 @@ public class WorldGenBombFlowers extends WorldGenerator {
 
     /**
      * Attempts to generate a single bomb flower at the given position
-     * 
+     *
      * @return true if a block was placed
      */
+
     @Override
     public boolean generate(World world, Random rand, int x, int y, int z) {
-        // Don't allow placement on cobblestone: probably a village blacksmith
-        if (world.isAirBlock(x, y, z) && world.getBlock(x, y - 1, z) != Blocks.cobblestone
+        Block blockAtPos = world.getBlock(x, y, z);
+        Block blockBelow = world.getBlock(x, y - 1, z);
+
+        if (blockAtPos == AIR_BLOCK && blockBelow != COBBLESTONE_BLOCK
             && ZSSBlocks.bombFlower.canPlaceBlockAt(world, x, y, z)) {
             world.setBlock(x, y, z, ZSSBlocks.bombFlower, rand.nextInt(8), 2);
             return true;
