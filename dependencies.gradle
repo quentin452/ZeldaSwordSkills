@@ -48,7 +48,7 @@ configurations {
 }
 
 dependencies {
-    transformedMod("com.github.GTNewHorizons:Battlegear2:1.2.0:dev")
+    transformedMod("com.github.GTNewHorizons:Battlegear2:1.3.4-pre:dev")
 
     compile files (
         "lib/antiqueatlas-v4.2.10-1.7.10-1-7-10.16+6f53c96990-dirty-dev.jar"

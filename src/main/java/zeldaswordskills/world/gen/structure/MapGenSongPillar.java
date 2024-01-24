@@ -1,16 +1,16 @@
 /**
  * Copyright (C) <2015> <coolAlias>
- * 
+ *
  * This file is part of coolAlias' Zelda Sword Skills Minecraft Mod; as such,
  * you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -30,6 +30,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -47,7 +48,7 @@ import zeldaswordskills.util.StructureGenUtils;
 public class MapGenSongPillar extends ZSSMapGenBase {
 
     /** List of biomes in which ruined pillar generation is allowed */
-    private static final Set<String> allowedBiomes = new HashSet<String>();
+    private static final Set<String> allowedBiomes = new HashSet<>();
 
     /** Song inscription to place on top of the pillar for the current generation */
     private AbstractZeldaSong song;
@@ -111,7 +112,7 @@ public class MapGenSongPillar extends ZSSMapGenBase {
      * Call after a pillar is placed to store it into the map / world data
      */
     private void onPillarPlaced(int chunkX, int chunkZ) {
-        structureMap.put(Long.valueOf(ChunkCoordIntPair.chunkXZ2Int(chunkX, chunkZ)), song);
+        structureMap.put(ChunkCoordIntPair.chunkXZ2Int(chunkX, chunkZ), song);
         NBTTagCompound compound = new NBTTagCompound();
         compound.setString("song", (song == null ? "NULL" : song.getUnlocalizedName()));
         addRoomTag(compound, chunkX, chunkZ);
@@ -123,7 +124,7 @@ public class MapGenSongPillar extends ZSSMapGenBase {
             int i = compound.getInteger("chunkX");
             int j = compound.getInteger("chunkZ");
             AbstractZeldaSong song = ZeldaSongs.getSongByName(compound.getString("song"));
-            structureMap.put(Long.valueOf(ChunkCoordIntPair.chunkXZ2Int(i, j)), song);
+            structureMap.put(ChunkCoordIntPair.chunkXZ2Int(i, j), song);
         } else {
             ZSSMain.logger.warn("Failed to translate Song Pillar NBT compound into structure map");
         }
